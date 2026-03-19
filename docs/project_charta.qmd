@@ -40,12 +40,9 @@
 
 **General Public:** End-users interested in regional agricultural distribution.
 
-## User Analysis
-<!-- Analyse the target audience of the visualization product and create at least 2 personas with **relevant attributes** such as domain expertise, data literacy, technical environment (devices, screen sizes), frequency of use etc. Amend each persona with the dimensions of the customer profile side in the Value Proposition Canvas @Osterwalder2014:
-
-* **User tasks** (jobs): What tasks are users trying to accomplish? Consider functional jobs (e.g. analysing data, making decisions), social jobs (e.g. reporting to stakeholders, collaborating with colleagues) and emotional jobs (e.g. feeling confident in their decisions).
-* **Pains**: What obstacles, risks or undesired outcomes do users currently face? What makes their current approach frustrating or inefficient?
-* **Gains**: What outcomes and benefits do users expect or desire? What would exceed their expectations? -->
+### User Analysis
+ 
+The target users of this visualization range from domain experts with deep agricultural knowledge to casual users seeking quick data-driven insights. Two representative personas were developed to guide design decisions (see Section 1.5).
 
 ## Stakeholder and User Analysis
  
@@ -165,8 +162,8 @@ The product will be an interactive exploratory map tool. Unlike a static infogra
 - **Legend:** A clear, labeled color bar to help users translate colors into numerical ranges.
 
 ### Target Medium and Integration
-
-*Hier fehlt Text*
+ 
+The visualization will be deployed as a static single-page web application hosted on GitHub Pages. The primary target device is a desktop browser (minimum viewport width: 1024px), with responsive scaling for tablets. The technology stack consists of D3.js for the choropleth rendering, HTML/CSS/JavaScript without a framework dependency, and TopoJSON for lightweight geodata delivery. No server-side backend is required — all data is bundled as static JSON/CSV files within the repository. The GitHub Pages URL will serve as the permanent public link for submission and presentation.
 
 
 ## Project Plan
@@ -205,9 +202,17 @@ gantt
 <!-- See [Mermaid syntax for Gantt charts](https://mermaid.js.org/syntax/gantt.html). It might not be displayed correctly in Safari &#8594; use Chrome. [Live editor with export functionality](https://mermaid.live/) -->
 
 ## Roles and Contact Details
-<!-- List the people involved in the development work here with their role titles, tasks and contact details. -->
-
-*Hier fehlt Text*
-
-
+ 
+| Name | Role | Responsibilities | Contact |
+|---|---|---|---|
+| Tim Badertscher | Project Lead & Data Engineering | Project coordination, timeline management, data acquisition from data.tg.ch, data cleaning and merging of statistical and geodata sources | tim.badertscher@students.zhaw.ch |
+| Christian Haag | Visualization & Frontend Development | D3.js choropleth implementation, interactive UI components (tooltips, filters, legend), responsive layout, GitHub Pages deployment | christian.haag@students.zhaw.ch |
+| Nikola Kroupar | UX Design & Documentation | Persona development, user testing, Quarto documentation (Project Charta, Data Report, Visualization Report), presentation design | nikola.kroupar@students.zhaw.ch |
+ 
+**Project Coaches:**
+ 
+| Name | Role | Contact |
+|---|---|---|
+| Manuel Dömer | Coach | manuel.doemer@zhaw.ch |
+| Wibke Weber | Coach | wibke.weber@zhaw.ch |
 
