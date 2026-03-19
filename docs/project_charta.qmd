@@ -105,19 +105,34 @@ Divide the project into individual phases, describe them briefly and draw up a p
 ```{mermaid}
 %%| label: fig-project-plan
 %%| fig-cap: Preliminary project plan in the form of a Gantt chart.
+
 gantt
-    title Project Plan: Livestock TG
+    title Projektplan: Nutztierbestände Thurgau
     dateFormat YYYY-MM-DD
-    section Project Understanding
-        Charta & Setup                 :a1, 2026-03-19, 2d
-    section Data Acquisition
-        Data Cleaning & Joining        :a2, 2026-03-23, 1d
-        Exploratory Data Analysis      :a3, 2026-03-25, 5d
-    section Design & Encoding
-        Base Map Rendering (GeoJSON)   :a4, 2026-04-01, 7d
-        Interactivity & Tooltips       :a5, 2026-04-08, 7d
-    section Evaluation
-        Documentation & Deployment     :a6, 2026-04-15, 5d
+    tickInterval 5day
+    
+    section Projektverständnis
+        Initialisierung & Kontextanalyse     :a1, 2026-03-19, 2d
+        Stakeholder- & User-Analyse          :a2, 2026-03-21, 3d
+        Project Charta & Vis-Konzept         :a3, 2026-03-24, 2d
+        Meilenstein: Charta fertig           :milestone, m1, 2026-03-26, 0d
+    
+    section Daten & Exploration
+        Datenbeschaffung (data.tg.ch)        :a4, 2026-03-26, 2d
+        Bereinigung & Geo-Join (Gemeinden)   :a5, 2026-03-28, 4d
+        Explorative Datenanalyse (EDA)       :a6, 2026-04-01, 3d
+        Meilenstein: Daten bereit            :milestone, m2, 2026-04-04, 0d
+        
+    section Design & Umsetzung
+        Basis-Karte (Choropleth)             :a7, 2026-04-04, 5d
+        Interaktivität (Hover & Tooltips)    :a8, 2026-04-09, 4d
+        Filterfunktionen (Tierarten)         :a9, 2026-04-13, 4d
+        Dashboard Prototyp fertig            :a10, 2026-04-17, 3d
+        
+    section Abschluss
+        Dokumentation & Reflektion           :a11, 2026-04-20, 4d
+        Deployment (GitHub Pages)            :a12, 2026-04-24, 2d
+        Meilenstein: Abgabe                  :milestone, m3, 2026-04-26, 0d
 ```
 
 <!-- See [Mermaid syntax for Gantt charts](https://mermaid.js.org/syntax/gantt.html). It might not be displayed correctly in Safari &#8594; use Chrome. [Live editor with export functionality](https://mermaid.live/) -->
