@@ -31,7 +31,7 @@
 
 ## Stakeholder and User Analysis
 
-## Stakeholder Analysis
+### Stakeholder Analysis
 <!-- List the people involved in and affected by the project. Describe their goals and relationships with each other. Visualisation in the form of a stakeholder map can provide a quick overview. -->
 
 **Project Team:** Responsible for data processing, design, and technical implementation.
@@ -44,9 +44,9 @@
 
 ### User Analysis
  
-The target users of this visualization range from domain experts with deep agricultural knowledge to casual users seeking quick data-driven insights. Two representative personas were developed to guide design decisions (see Section 1.5).
+The target users of this visualization range from domain experts with deep agricultural knowledge to casual users seeking quick data-driven insights. Two representative personas were developed to guide design decisions.
  
-### Persona 1: "Lukas, the Farmer" (Domain Expert)
+#### Persona 1: "Lukas, the Farmer" (Domain Expert)
 
 ![Persona 1: Lukas, the Farmer](pics/Lukas.png){#pic-Lukas}
  
@@ -75,7 +75,7 @@ The target users of this visualization range from domain experts with deep agric
  
 ---
  
-### Persona 2: "Julia, the Journalist" (Casual User)
+#### Persona 2: "Julia, the Journalist" (Casual User)
 
 ![Persona 1: Julia, the Journalist](pics/Julia.png){#pic-Julia}
  
