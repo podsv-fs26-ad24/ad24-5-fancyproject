@@ -51,7 +51,7 @@
  
 ### Persona 1: "Lukas, the Farmer" (Domain Expert)
 
-![](pics/Lukas%20%E2%80%93%20Schweizer%20Bauer%2C%20Anfang%2040%2C%20gr%C3%BCne%20Arbeitsjacke%2C%20Karohemd%2C%20Tablet%20in%20der%20(1).png){width=25%, fig-alt="Persona Lukas (Farmer)", fig-align="left"}
+![Persona 1: Lukas, the Farmer](pics/Lukas.png){#pic-Lukas}
  
 - Domain Expertise: Very high (extensive practical knowledge of livestock farming).
 - Data Literacy: Moderate (understands statistics but is not a data analyst). According to a study published in Agrarforschung Schweiz, digital tools in Swiss agriculture are primarily used to reduce physical labor, while data-driven management tools still see low adoption [1].
@@ -80,7 +80,7 @@
  
 ### Persona 2: "Julia, the Journalist" (Casual User)
 
-![](pics/Julia%20%E2%80%93%20Journalistin%2C%20Ende%2020%2C%20dunkler%20Blazer%2C%20sitzt%20am%20Laptop%20in%20einer%20modernen.png){width=25%, fig-alt="Persona Julia (Journalist)", fig-align="left"}
+![Persona 1: Julia, the Journalist](pics/Julia.png){#pic-Julia}
  
 - Domain Expertise: Low to moderate (searching for trends, outliers, and anomalies).
 - Data Literacy: High (experienced in interpreting graphics for news articles). The SRF Data Team exemplifies how Swiss data journalists combine open data with interactive visualizations for investigative reporting [4].
