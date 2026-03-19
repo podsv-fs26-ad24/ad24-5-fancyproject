@@ -107,17 +107,7 @@
  
 ---
  
-## Situation Assessment
- 
-**Resources:** Data from [data.tg.ch](https://data.tg.ch/explore/dataset/div-la-2/) [5], GeoJSON/TopoJSON boundaries via [swiss-maps (npm)](https://github.com/interactivethings/swiss-maps) [6] based on [swisstopo swissBOUNDARIES3D](https://www.swisstopo.admin.ch/de/landschaftsmodell-swissboundaries3d) [7], D3.js or Leaflet, GitHub hosting.
- 
-**Constraints:** Fixed deadline, must be web-based, requires merging two separate datasets (Geo + Stats).
- 
-**Risks:** Potential naming mismatches between the livestock dataset and the GeoJSON municipality IDs.
- 
----
- 
-## Sources
+### Sources
  
 | # | Source | Relevance | Link |
 |---|--------|-----------|------|
