@@ -205,14 +205,14 @@ gantt
  
 | Name | Role | Responsibilities | Contact |
 |---|---|---|---|
-| Tim Badertscher | Project Lead & Data Engineering | Project coordination, timeline management, data acquisition from data.tg.ch, data cleaning and merging of statistical and geodata sources | tim.badertscher@students.zhaw.ch |
-| Christian Haag | Visualization & Frontend Development | D3.js choropleth implementation, interactive UI components (tooltips, filters, legend), responsive layout, GitHub Pages deployment | christian.haag@students.zhaw.ch |
-| Nikola Kroupar | UX Design & Documentation | Persona development, user testing, Quarto documentation (Project Charta, Data Report, Visualization Report), presentation design | nikola.kroupar@students.zhaw.ch |
+| Tim Badertscher | Project Lead & Data Engineering | Project coordination, timeline management, data acquisition from data.tg.ch, data cleaning and merging of statistical and geodata sources | badertim@students.zhaw.ch |
+| Christian Haag | Visualization & Frontend Development | D3.js choropleth implementation, interactive UI components (tooltips, filters, legend), responsive layout, GitHub Pages deployment | haagchr1@students.zhaw.ch |
+| Nikola Kroucil | UX Design & Documentation | Persona development, user testing, Quarto documentation (Project Charta, Data Report, Visualization Report), presentation design | kroucnik@students.zhaw.ch |
  
 **Project Coaches:**
  
 | Name | Role | Contact |
 |---|---|---|
-| Manuel Dömer | Coach | manuel.doemer@zhaw.ch |
-| Wibke Weber | Coach | wibke.weber@zhaw.ch |
+| Manuel Dömer | Coach |doem@zhaw.ch|
+| Wibke Weber | Coach |webw@zhaw.ch|
 
