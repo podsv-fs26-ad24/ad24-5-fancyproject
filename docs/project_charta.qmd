@@ -49,6 +49,68 @@
 
 *Hier fehlt Text*
 
+### Persona 1: "Lukas, the Thurgau Farmer" (Domain Expert)
+**Relevant Attributes:**
+- Domain Expertise: Very high (extensive practical knowledge of livestock farming).
+
+- Data Literacy: Moderate (understands statistics but is not a data analyst).
+
+- Technical Environment: Desktop PC in the office or a tablet in the barn.
+
+- Frequency of Use: Occasional (e.g., for local positioning or preparing for association meetings).
+
+**User Tasks (Jobs):**
+- Functional: Comparing the livestock density of his own municipality with neighboring regions in the canton.
+
+- Social: Creating a factual basis for discussions with colleagues or the farmers' association.
+
+- Emotional: Feeling confident and objectively informed about regional agricultural developments.
+
+**Pains:**
+- Having to sift through dry PDF reports from the canton just to find a single figure.
+
+- Frustration with outdated or cluttered websites that are difficult to navigate.
+
+- Difficulty visualizing the spatial distribution of abstract numbers.
+
+**Gains:**
+- A simple interface that immediately visualizes the "Top 3 municipalities."
+
+- Instant clarity on the distribution of different livestock categories (e.g., cattle vs. pigs).
+
+- A modern, responsive tool that he can showcase on his tablet while on the move.
+
+### Persona 2: "Julia, the Environmental Journalist" (Casual User)
+**Relevant Attributes:**
+- Domain Expertise: Low to moderate (searching for trends, outliers, and anomalies).
+
+- Data Literacy: High (experienced in interpreting graphics for news articles).
+
+- Technical Environment: Laptop (large screen) and smartphone.
+
+- Frequency of Use: One-time intensive use during a specific research phase.
+
+**User Tasks (Jobs):**
+- Functional: Identifying "hotspots" (outliers) with extremely high livestock density for an investigative report.
+
+- Social: Communicating data-driven facts to readers (Data Journalism).
+
+- Emotional: Gaining certainty that the cited figures originate from a reliable source (Open Data Thurgau).
+
+**Pains:**
+- Time pressure: No time to manually plot raw data in Excel or specialized software.
+
+- Risk of misinterpretation when using purely tabular data without geographic context.
+
+- Static maps that offer no detailed information (tooltips) for smaller municipalities.
+
+**Gains:**
+- An interactive map that can easily be screenshotted or linked for an article.
+
+- Filtering functions to quickly switch between different datasets or animal types.
+
+- Transparent source citations integrated directly into the visualization.
+
 ## Situation Assessment
 <!-- Describe the available resources (data, personnel, material, software/tools, infrastructure, etc.) and time as well as restrictions and constraints. Possible risks that may arise during the project are also identified. -->
 
