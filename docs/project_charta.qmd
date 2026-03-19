@@ -29,9 +29,7 @@
 
 - Historical trend analysis (focus is on the most recent dataset)
 
-## Stakeholder and User Analysis
-
-### Stakeholder Analysis
+## Stakeholder Analysis
 <!-- List the people involved in and affected by the project. Describe their goals and relationships with each other. Visualisation in the form of a stakeholder map can provide a quick overview. -->
 
 **Project Team:** Responsible for data processing, design, and technical implementation.
@@ -42,11 +40,11 @@
 
 **General Public:** End-users interested in regional agricultural distribution.
 
-### User Analysis
+## User Analysis
  
 The target users of this visualization range from domain experts with deep agricultural knowledge to casual users seeking quick data-driven insights. Two representative personas were developed to guide design decisions.
  
-#### Persona 1: "Lukas, the Farmer" (Domain Expert)
+### Persona 1: "Lukas, the Farmer" (Domain Expert)
 
 ![Persona 1: Lukas, the Farmer](pics/Lukas.png){#pic-Lukas}
  
@@ -75,7 +73,7 @@ The target users of this visualization range from domain experts with deep agric
  
 ---
  
-#### Persona 2: "Julia, the Journalist" (Casual User)
+### Persona 2: "Julia, the Journalist" (Casual User)
 
 ![Persona 1: Julia, the Journalist](pics/Julia.png){#pic-Julia}
  
@@ -205,9 +203,9 @@ gantt
  
 | Name | Role | Responsibilities | Contact |
 |---|---|---|---|
-| Tim Badertscher | Project Lead & Data Engineering | Project coordination, timeline management, data acquisition from data.tg.ch, data cleaning and merging of statistical and geodata sources | badertim@students.zhaw.ch |
-| Christian Haag | Visualization & Frontend Development | D3.js choropleth implementation, interactive UI components (tooltips, filters, legend), responsive layout, GitHub Pages deployment | haagchr1@students.zhaw.ch |
-| Nikola Kroucil | UX Design & Documentation | Persona development, user testing, Quarto documentation (Project Charta, Data Report, Visualization Report), presentation design | kroucnik@students.zhaw.ch |
+| Tim Badertscher | Project Lead | Project coordination, timeline management, documentation | badertim@students.zhaw.ch |
+| Christian Haag | Data Lead | Explorative Data Analysis, Data Merging | haagchr1@students.zhaw.ch |
+| Nikola Kroucil | Visualisation Lead | Dashboard Design | kroucnik@students.zhaw.ch |
  
 **Project Coaches:**
  
