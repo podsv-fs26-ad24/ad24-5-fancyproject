@@ -176,8 +176,9 @@ Divide the project into individual phases, describe them briefly and draw up a p
 %%| label: fig-project-plan
 %%| fig-cap: Preliminary project plan in the form of a Gantt chart.
 gantt
-    title Project Plan
+    title Project Plan: Livestock TG
     dateFormat YYYY-MM-DD
+    tickInterval 1week
     tickInterval 1week
     section Project Understanding
         Initiation workshop and context analysis     :a1, 2026-03-17, 1d
