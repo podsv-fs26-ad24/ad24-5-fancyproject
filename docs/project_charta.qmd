@@ -29,6 +29,8 @@
 
 - Historical trend analysis (focus is on the most recent dataset)
 
+## Stakeholder and User Analysis
+
 ## Stakeholder Analysis
 <!-- List the people involved in and affected by the project. Describe their goals and relationships with each other. Visualisation in the form of a stakeholder map can provide a quick overview. -->
 
@@ -43,8 +45,6 @@
 ### User Analysis
  
 The target users of this visualization range from domain experts with deep agricultural knowledge to casual users seeking quick data-driven insights. Two representative personas were developed to guide design decisions (see Section 1.5).
-
-## Stakeholder and User Analysis
  
 ### Persona 1: "Lukas, the Farmer" (Domain Expert)
 
