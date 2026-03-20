@@ -111,8 +111,6 @@ The target users of this visualization range from domain experts with deep agric
 | 3 | **Opendata.ch – OGD User Survey (2022)** | Persona 1 + 2: supports "pains" — 35% demand better search, 27% better previews/visualizations on OGD portals | [opendata.ch](https://opendata.ch/news/opendata-swiss-empfehlungen-auf-basis-der-umfrageergebnisse/) |
 | 4 | **SRF Data (GitHub)** | Persona 2: Swiss data journalism reference — demonstrates how journalists use open data for interactive visualizations | [srfdata.github.io](https://srfdata.github.io/) |
 | 5 | **Open Data Kanton Thurgau – Landwirtschaftliche Tierbestände** | Both personas + Situation Assessment: primary dataset (livestock per municipality from 2015, Landwirtschaftsamt TG) | [data.tg.ch](https://data.tg.ch/explore/dataset/div-la-2/) |
-| 6 | **swiss-maps (npm / GitHub)** | Situation Assessment: pre-built TopoJSON of Swiss municipalities for D3.js | [github.com/interactivethings/swiss-maps](https://github.com/interactivethings/swiss-maps) |
-| 7 | **swisstopo – swissBOUNDARIES3D** | Situation Assessment: official municipality boundaries, updated annually | [swisstopo.admin.ch](https://www.swisstopo.admin.ch/de/landschaftsmodell-swissboundaries3d) |
 
 ## Situation Assessment
 <!-- Describe the available resources (data, personnel, material, software/tools, infrastructure, etc.) and time as well as restrictions and constraints. Possible risks that may arise during the project are also identified. -->
