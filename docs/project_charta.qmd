@@ -180,21 +180,21 @@ gantt
         Stakeholder and user analysis     :a3, 2026-03-17, 1d
         Situation assessment    :a4, 2026-03-18, 1d
         Project objectives and visualization concept    :a5, 2026-03-19, 1d
-        Sign project charta: milestone, m1, 2026-03-20, 1d
+        Submit project charta: milestone, m1, 2026-03-20, 1d
     
     section Data Acquisition and Exploration
         Acquire data :a6, 2026-03-20, 3d
         Exploratory data analysis   :a7, 2026-03-23, 7d
-        Discuss data report: milestone, m2, 2026-03-30, 1d
+        Discuss data: milestone, m2, 2026-03-30, 1d
         
     section Visual Encoding and Design
         Overview charts   :a8, 2026-04-01, 7d
-        Maps :a9, 2026-04-08, 7d
+        Create Map :a9, 2026-04-08, 7d
         Implement Dashboard prototype :a10, 2026-04-15, 14d
-        Complete visualization report :a10, 2026-04-29, 14d
+        Complete Dashboard :a10, 2026-04-29, 14d
     section Evaluation
-        Prepare presentation :a10, 2026-05-14, 14d
-        Project presentation : milestone, m2, 2026-06-01, 4m
+        Create presentation :a10, 2026-05-14, 14d
+        Submit Project : milestone, m2, 2026-06-01, 4m
 ```
 
 <!-- See [Mermaid syntax for Gantt charts](https://mermaid.js.org/syntax/gantt.html). It might not be displayed correctly in Safari &#8594; use Chrome. [Live editor with export functionality](https://mermaid.live/) -->
@@ -204,7 +204,7 @@ gantt
 | Name | Role | Responsibilities | Contact |
 |---|---|---|---|
 | Tim Badertscher | Project Lead | Project coordination, timeline management, documentation | badertim@students.zhaw.ch |
-| Christian Haag | Data Lead | Explorative Data Analysis, Data Merging | haagchr1@students.zhaw.ch |
+| Christian Haag | Data Lead | Explorative Data Analysis, Data Merging, Data Engineering | haagchr1@students.zhaw.ch |
 | Nikola Kroucil | Visualisation Lead | Dashboard Design | kroucnik@students.zhaw.ch |
  
 **Project Coaches:**
