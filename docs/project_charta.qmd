@@ -42,63 +42,63 @@
 
 ## User Analysis
  
-The target users of this visualization range from domain experts with deep agricultural knowledge to casual users seeking quick data-driven insights. Two representative personas were developed to guide design decisions.
+The target users of this visualization are mainly Regional Managers and Salespersons in need of quick data-driven insights, being able to plan sales strategies and pick optimal routes. Two representative personas were developed to guide design decisions.
  
 ### Persona 1: "Lukas, the Farmer" (Domain Expert)
 
-![Persona 1: Lukas, the Farmer](pics/Lukas.png){#pic-Lukas}
+![Persona 1: Lukas, the Salesperson](pics/Lukas.jpg){#pic-Lukas}
  
-- Domain Expertise: Very high (extensive practical knowledge of livestock farming).
-- Data Literacy: Moderate (understands statistics but is not a data analyst). According to a study published in Agrarforschung Schweiz, digital tools in Swiss agriculture are primarily used to reduce physical labor, while data-driven management tools still see low adoption [1].
-- Technical Environment: Desktop PC in the office or a tablet in the barn.
-- Frequency of Use: Occasional (e.g., for local positioning or preparing for association meetings).
+- Domain Expertise: High (strong knowledge of agricultural products, livestock needs, and regional farming practices).
+- Data Literacy: Moderate (comfortable interpreting dashboard metrics and regional patterns, but not a data specialist).
+- Technical Environment: Tablet or smartphone while traveling, desktop PC when planning visits from the office.
+- Frequency of Use: Frequent (used regularly to prepare sales visits and optimize daily travel routes).
  
 **User Tasks (Jobs):**
  
-- Functional: Comparing the livestock density of his own municipality with neighboring regions in the canton.
-- Social: Creating a factual basis for discussions with colleagues or the farmers' association, drawing on official cantonal data [2].
-- Emotional: Feeling confident and objectively informed about regional agricultural developments.
+- Functional: Using the livestock dashboard to identify which farms are located in which municipalities, understand the dominant livestock categories, and plan the most efficient sales route.
+- Social: Demonstrating expertise and credibility in conversations with farmers by recommending products that match the livestock profile of each farm or region.
+- Emotional: Feeling well-prepared, efficient, and confident when visiting customers with a clear plan and relevant product suggestions.
  
 **Pains:**
  
-- Having to sift through dry PDF reports from the canton just to find a single figure. A survey by Opendata.ch (2022) found that 27% of OGD users demand better data previews and 35% better search functions [3].
-- Frustration with outdated or cluttered websites that are difficult to navigate.
-- Difficulty visualizing the spatial distribution of abstract numbers.
+- Losing time by planning routes manually without a clear overview of where relevant farms are located.
+- Difficulty matching the right products to the right farm types without a quick summary of livestock distribution.
+- Frustration when information is scattered across multiple sources instead of being available in one clear dashboard.
  
 **Gains:**
  
-- A simple interface that immediately visualizes the "Top 3 municipalities."
-- Instant clarity on the distribution of different livestock categories (e.g., cattle vs. pigs).
-- A modern, responsive tool that he can showcase on his tablet while on the move.
+- A simple interface that shows where farms with relevant livestock are concentrated.
+- Instant clarity on which products are most relevant for each stop based on livestock type (e.g., cattle, pigs, or poultry).
+- A responsive dashboard that supports both route planning and targeted sales preparation while on the move.
  
 ---
- 
-### Persona 2: "Julia, the Journalist" (Casual User)
 
-![Persona 1: Julia, the Journalist](pics/Julia.png){#pic-Julia}
+### Persona 2: "Julia, the Regional Manager" (Strategic User)
+
+![Persona 1: Julia, the Regional Manager](pics/Julia.png){#pic-Julia}
  
-- Domain Expertise: Low to moderate (searching for trends, outliers, and anomalies).
-- Data Literacy: High (experienced in interpreting graphics for news articles). The SRF Data Team exemplifies how Swiss data journalists combine open data with interactive visualizations for investigative reporting [4].
-- Technical Environment: Laptop (large screen) and smartphone.
-- Frequency of Use: One-time intensive use during a specific research phase.
+- Domain Expertise: Moderate to high (strong understanding of regional agricultural operations, market dynamics, and business performance across multiple areas).
+- Data Literacy: High (comfortable interpreting dashboards, identifying trends, and making data-driven decisions).
+- Technical Environment: Laptop (primary for analysis and reporting), smartphone for quick checks while traveling.
+- Frequency of Use: Regular (used weekly or daily for monitoring regional performance and planning).
  
 **User Tasks (Jobs):**
  
-- Functional: Identifying "hotspots" (outliers) with extremely high livestock density for an investigative report.
-- Social: Communicating data-driven facts to readers (Data Journalism).
-- Emotional: Gaining certainty that the cited figures originate from a reliable source (Open Data Kanton Thurgau) [5].
+- Functional: Monitoring livestock distribution across municipalities to identify high-potential regions, allocate resources, and support sales strategies.
+- Social: Coordinating with sales teams and stakeholders by providing data-backed insights and justifying regional decisions.
+- Emotional: Feeling in control of regional performance and confident when making strategic decisions based on reliable data.
  
 **Pains:**
  
-- Time pressure: No time to manually plot raw data in Excel or specialized software.
-- Risk of misinterpretation when using purely tabular data without geographic context.
-- Static maps that offer no detailed information (tooltips) for smaller municipalities.
+- Lack of a clear overview of regional differences, making it harder to prioritize high-impact areas.
+- Fragmented data sources that require time-consuming consolidation before decisions can be made.
+- Difficulty identifying trends or shifts in livestock distribution that affect planning and forecasting.
  
 **Gains:**
  
-- An interactive map that can easily be screenshotted or linked for an article.
-- Filtering functions to quickly switch between different datasets or animal types.
-- Transparent source citations integrated directly into the visualization.
+- A dashboard that provides a clear, aggregated view of livestock distribution across regions.
+- The ability to quickly identify high-density areas and emerging trends.
+- Efficient decision-making through centralized, up-to-date, and visually intuitive data.
  
 ---
  
@@ -201,7 +201,7 @@ gantt
  
 | Name | Role | Responsibilities | Contact |
 |---|---|---|---|
-| Tim Badertscher | Project Lead | Project coordination, timeline management, documentation | badertim@students.zhaw.ch |
+| Tim Badertscher | Project Lead | Project Coordination, Timeline Management, Documentation | badertim@students.zhaw.ch |
 | Christian Haag | Data Lead | Explorative Data Analysis, Data Merging, Data Engineering | haagchr1@students.zhaw.ch |
 | Nikola Kroucil | Visualisation Lead | Dashboard Design | kroucnik@students.zhaw.ch |
  
