@@ -178,7 +178,7 @@ The dataset `div-la-2` (*Landwirtschaftliche Tierbestände nach Gemeinde*) is pu
 ```{python}
 #| label: api-fetch
 def fetch_year(year: int):
-    """Fetch all records for a given erhebungsjahr; returns list (possibly empty)."""
+    """Fetch all records for a given jahr; returns list (possibly empty)."""
     records = []
     offset = 0
     page_size = 100
@@ -189,7 +189,7 @@ def fetch_year(year: int):
                 params={
                     "limit": page_size,
                     "offset": offset,
-                    "where": f"erhebungsjahr={year}"
+                    "where": f"jahr={year}"
                 },
                 timeout=10
             )
@@ -212,7 +212,7 @@ candidates = [int(TG_DATA_YEAR_ENV)] if TG_DATA_YEAR_ENV else list(range(2025, 2
 records = []
 year_used = None
 for y in candidates:
-    print(f"Trying erhebungsjahr={y}…")
+    print(f"Trying jahr={y}…")
     recs = fetch_year(y)
     if recs:
         records = recs
