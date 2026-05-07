@@ -1,5 +1,7 @@
 # ThurNaturGau Marktübersicht
 
+**Documentation website:** https://podsv-fs26-ad24.github.io/ad24-5-fancyproject/
+
 Interactive choropleth dashboard for **ThurNaturGau Handel** (fictional agricultural trader, Kanton Thurgau) showing livestock distribution, GVE intensity, and feed-purchase potential per municipality. Built as a project deliverable for the ZHAW IUNR PODSV course (Programming and Data Visualization for Sustainability) by Christian Haag.
 
 The project follows the visualization product development process taught at ZHAW: **Project Understanding → Data Acquisition & Exploration → Visual Encoding & Design → Evaluation → Deployment**. Every phase has a corresponding documentation page (rendered to a Quarto website) and, where applicable, a code folder.
