@@ -1,0 +1,295 @@
+---
+title: "Data Report"
+subtitle: "Phase 2 — Data Acquisition and Exploration"
+date: today
+execute:
+  warning: false
+  message: false
+jupyter: python3
+---
+
+This report describes and executes the data pipeline that prepares both the geometry and the livestock attribute data for the dashboard. It writes two snapshots into `../data/` that the [Deployment](deployment.qmd) step then bakes into the final HTML.
+
+## Setup
+
+```{python}
+#| label: setup
+from pathlib import Path
+import os
+import json
+import re
+import requests
+import geopandas as gpd
+import pandas as pd
+from shapely.ops import transform as shp_transform
+from dotenv import load_dotenv
+
+# Load env vars (relative to repo root)
+load_dotenv(Path("..") / ".env")
+
+API_BASE = os.environ.get("TG_API_BASE", "https://data.tg.ch/api/explore/v2.1/catalog/datasets")
+SIMPLIFY_TOLERANCE = float(os.environ.get("GEO_SIMPLIFY_TOLERANCE", "0.0002"))
+TG_DATA_YEAR_ENV = os.environ.get("TG_DATA_YEAR", "").strip()
+
+# Path setup (relative to docs/ folder)
+RAW_SHP = Path("..") / "data-raw" / "swissboundaries" / "swissBOUNDARIES3D_1_5_TLM_HOHEITSGEBIET.shp"
+DATA_OUT = Path("..") / "data"
+DATA_OUT.mkdir(exist_ok=True)
+
+print(f"API base:              {API_BASE}")
+print(f"Simplify tolerance:    {SIMPLIFY_TOLERANCE}° (~{SIMPLIFY_TOLERANCE*111000:.0f} m)")
+print(f"Data year override:    {TG_DATA_YEAR_ENV or '(auto-detect)'}")
+```
+
+## Geodata: swissBOUNDARIES3D
+
+The shapefile is the official swisstopo *swissBOUNDARIES3D* product (release 2026-01), in CH1903+/LV95 (EPSG:2056) with vertical heights in LN02. We only need 2D Polygons in WGS84 for Leaflet.
+
+### Loading and inspecting
+
+```{python}
+#| label: load-shp
+gdf = gpd.read_file(RAW_SHP)
+print(f"Total features (whole CH): {len(gdf)}")
+print(f"CRS:                       {gdf.crs.name}")
+print(f"Cantons present:           {sorted(gdf['KANTONSNUM'].dropna().unique().astype(int))}")
+```
+
+### Filtering for Thurgau
+
+`KANTONSNUM = 20` is the BFS Kantonsnummer for Thurgau. Within the layer there is also a Kantonsgebiet feature representing the lake share — we drop it via `OBJEKTART`.
+
+```{python}
+#| label: filter-tg
+tg = gdf[gdf['KANTONSNUM'] == 20].copy()
+print(f"TG features (raw):                 {len(tg)}")
+print(f"By OBJEKTART: {tg['OBJEKTART'].value_counts().to_dict()}")
+
+# Keep only political municipalities (drop "Bodensee (TG)" Kantonsgebiet feature)
+tg = tg[tg['OBJEKTART'] == 'Gemeindegebiet'].copy()
+print(f"TG political municipalities:       {len(tg)}")
+```
+
+### Reprojection and Z removal
+
+```{python}
+#| label: reproject
+# Drop timestamp columns (cause TypeError on .to_json() — pandas Timestamps are not JSON-serializable)
+ts_cols = [c for c in tg.columns if 'DATUM' in c or 'ERSTELLUNG' in c.upper()]
+if ts_cols:
+    tg = tg.drop(columns=ts_cols)
+
+tg_wgs = tg.to_crs(epsg=4326)
+
+# Strip Z dimension — Leaflet expects 2D
+def drop_z(geom):
+    if geom is None or not geom.has_z:
+        return geom
+    return shp_transform(lambda x, y, z=None: (x, y), geom)
+
+tg_wgs['geometry'] = tg_wgs['geometry'].apply(drop_z)
+
+# Sanity: TG bounding box
+xmin, ymin, xmax, ymax = tg_wgs.total_bounds
+print(f"Bounding box (WGS84):")
+print(f"  Lon: {xmin:.4f}° – {xmax:.4f}°")
+print(f"  Lat: {ymin:.4f}° – {ymax:.4f}°")
+print(f"Expected for TG:    Lon ~8.7°–9.5°, Lat ~47.4°–47.7°  ✓" if 8.5 < xmin < 9.0 and 47.3 < ymin < 47.6 else "  ⚠ Unexpected bounds")
+```
+
+### Geometry simplification
+
+The raw, post-reprojection GeoJSON is several megabytes. Inlining that into the dashboard HTML would bloat it unacceptably. Douglas-Peucker simplification at a 22 m tolerance reduces size by ~80 % while keeping the boundaries visually indistinguishable at zoom levels relevant to canton-level overview.
+
+```{python}
+#| label: simplify
+tg_simple = tg_wgs.copy()
+tg_simple['geometry'] = tg_wgs.geometry.simplify(
+    tolerance=SIMPLIFY_TOLERANCE,
+    preserve_topology=True
+)
+
+raw_kb = len(tg_wgs.to_json()) / 1024
+simp_kb = len(tg_simple.to_json()) / 1024
+
+print(f"Raw GeoJSON:        {raw_kb:>7.0f} KB")
+print(f"Simplified:         {simp_kb:>7.0f} KB")
+print(f"Reduction:          {(1 - simp_kb/raw_kb)*100:>7.1f} %")
+```
+
+### Preview
+
+```{python}
+#| label: preview-map
+#| fig-cap: "Simplified Thurgau municipality boundaries on OSM."
+import folium
+
+centre = [47.55, 9.05]
+m = folium.Map(location=centre, zoom_start=10, tiles='OpenStreetMap')
+
+folium.GeoJson(
+    tg_simple,
+    style_function=lambda x: {
+        'fillColor': '#245220',
+        'color': '#1a3c17',
+        'weight': 1,
+        'fillOpacity': 0.3
+    },
+    tooltip=folium.GeoJsonTooltip(
+        fields=['NAME', 'BFS_NUMMER'],
+        aliases=['Gemeinde:', 'BFS-Nr.:']
+    )
+).add_to(m)
+
+m
+```
+
+### Writing snapshot to `data/`
+
+```{python}
+#| label: write-geojson
+features = []
+for _, row in tg_simple.iterrows():
+    if row['NAME'] is None:
+        continue
+    bfs = int(row['BFS_NUMMER']) if row['BFS_NUMMER'] else None
+    geom = json.loads(gpd.GeoSeries([row['geometry']]).to_json())['features'][0]['geometry']
+    features.append({
+        "type": "Feature",
+        "id": bfs,
+        "properties": {"BFS": bfs, "NAME": row['NAME']},
+        "geometry": geom
+    })
+
+geojson = {"type": "FeatureCollection", "features": features}
+
+geojson_path = DATA_OUT / "tg_gemeinden.geojson"
+with open(geojson_path, 'w', encoding='utf-8') as f:
+    json.dump(geojson, f, ensure_ascii=False, separators=(',', ':'))
+
+print(f"✓ Wrote {geojson_path.relative_to(Path('..'))}")
+print(f"  {len(features)} features, {geojson_path.stat().st_size/1024:.0f} KB on disk")
+```
+
+## Livestock data: data.tg.ch
+
+The dataset `div-la-2` (*Landwirtschaftliche Tierbestände nach Gemeinde*) is published by Landwirtschaftsamt TG via the OpenDataSoft v2.1 platform. We hit the REST endpoint, scan years from newest to oldest, and paginate through all records of the chosen year.
+
+```{python}
+#| label: api-fetch
+def fetch_year(year: int):
+    """Fetch all records for a given erhebungsjahr; returns list (possibly empty)."""
+    records = []
+    offset = 0
+    page_size = 100
+    while True:
+        try:
+            r = requests.get(
+                f"{API_BASE}/div-la-2/records",
+                params={
+                    "limit": page_size,
+                    "offset": offset,
+                    "where": f"erhebungsjahr={year}"
+                },
+                timeout=10
+            )
+            r.raise_for_status()
+            data = r.json()
+        except (requests.RequestException, ValueError) as e:
+            print(f"  API call failed at offset={offset}: {e}")
+            return records
+        results = data.get("results", [])
+        records.extend(results)
+        total = data.get("total_count", len(records))
+        if len(records) >= total or not results:
+            break
+        offset += page_size
+    return records
+
+# Determine which year to use
+candidates = [int(TG_DATA_YEAR_ENV)] if TG_DATA_YEAR_ENV else list(range(2025, 2017, -1))
+
+records = []
+year_used = None
+for y in candidates:
+    print(f"Trying erhebungsjahr={y}…")
+    recs = fetch_year(y)
+    if recs:
+        records = recs
+        year_used = y
+        print(f"  ✓ Got {len(recs)} records")
+        break
+    print(f"  (no records)")
+
+if not records:
+    print("\n⚠️  No records available from the API.")
+    print("    The dashboard will still build, but without baked-in attribute data.")
+    print("    The browser-side fetch in the HTML will retry at view time.")
+```
+
+### Quick exploration
+
+```{python}
+#| label: explore
+if records:
+    df = pd.DataFrame(records)
+    print(f"Year:                     {year_used}")
+    print(f"Records:                  {len(df)}")
+    print(f"Columns:                  {list(df.columns)}")
+    print(f"Unique municipalities:    {df['gemeinde'].nunique() if 'gemeinde' in df.columns else 'N/A'}")
+    print(f"Unique livestock types:   {df['tierart'].nunique() if 'tierart' in df.columns else 'N/A'}")
+    df.head(3)
+else:
+    df = pd.DataFrame()
+    df.head()
+```
+
+### Writing snapshot
+
+```{python}
+#| label: write-records
+if records:
+    out_path = DATA_OUT / f"tierbestaende_{year_used}.json"
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump({"year": year_used, "records": records}, f, ensure_ascii=False)
+    # Also write a stable-named copy that deployment.qmd can read without knowing the year
+    latest = DATA_OUT / "tierbestaende_latest.json"
+    with open(latest, 'w', encoding='utf-8') as f:
+        json.dump({"year": year_used, "records": records}, f, ensure_ascii=False)
+    print(f"✓ Wrote {out_path.relative_to(Path('..'))} ({out_path.stat().st_size/1024:.0f} KB)")
+    print(f"✓ Wrote {latest.relative_to(Path('..'))}")
+else:
+    print("(skipped — no records to write)")
+```
+
+## Quality checks
+
+### Name matching: GeoJSON ↔ API records
+
+The dashboard joins API records to map polygons by Gemeinde name. Mismatches mean a Gemeinde stays empty on the map. We expect close to 100 % matching — both sources use the official Thurgau spelling (umlauts, hyphens, parentheses).
+
+```{python}
+#| label: matching
+if records and features:
+    geo_names = {f['properties']['NAME'] for f in features}
+    data_names = {r.get('gemeinde') for r in records if r.get('gemeinde')}
+
+    matched = geo_names & data_names
+    only_geo = geo_names - data_names
+    only_data = data_names - geo_names
+
+    print(f"Names in geometry:    {len(geo_names)}")
+    print(f"Names in API:         {len(data_names)}")
+    print(f"Matched:              {len(matched)}  ({len(matched)/len(geo_names)*100:.1f}% of geo)")
+
+    if only_geo:
+        print(f"\nIn geometry but not in API: {sorted(only_geo)}")
+    if only_data:
+        print(f"\nIn API but not in geometry: {sorted(only_data)}")
+else:
+    print("(skipped — geometry or records missing)")
+```
+
+### Summary
+
+If both snapshots wrote successfully and matching is at or near 100 %, the [Deployment](deployment.qmd) step can build the dashboard.

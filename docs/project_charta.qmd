@@ -1,0 +1,83 @@
+---
+title: "Project Charta"
+subtitle: "Phase 1 — Project Understanding"
+date: today
+---
+
+## Auftraggeber & Stakeholder
+
+**Auftraggeber**: ThurNaturGau Handel AG (fiktiv) — regionaler Agrarhändler mit Schwerpunkt Futter, Einstreu und Mineralstoffe für Nutztierbetriebe im Kanton Thurgau.
+
+**Primäre Stakeholder**
+
+| Rolle | Interesse | Erwartung an das Tool |
+|:------|:----------|:----------------------|
+| Aussendienst-Mitarbeitende | Kundenakquise, Routenplanung | Schneller visueller Überblick: Wo lohnt sich ein Besuch? Welche Tierarten dominieren? |
+| Verkaufsleitung | Strategische Marktbearbeitung | Vergleich Gemeinden, Identifikation von „weissen Flecken", Reportings |
+| Geschäftsleitung | Marktpotenzial | Geschätztes adressierbares Verkaufsvolumen pro Gemeinde |
+
+## Persona
+
+**Markus, 48, Aussendienstmitarbeiter ThurNaturGau**
+
+Markus betreut seit 12 Jahren landwirtschaftliche Kunden im südlichen Thurgau. Er kennt seine Stammkunden, möchte aber gezielt Neukunden gewinnen — besonders in Gemeinden, in denen er bisher unterrepräsentiert ist. Vor jeder Wochenplanung möchte er kurz visuell prüfen, welche Gemeinden ein hohes Potenzial in „seinen" Tierkategorien (Rinder, Mastschweine) haben. Markus arbeitet auf einem Laptop, manchmal offline (Auto, Bauernhof ohne Empfang).
+
+## Ziele
+
+**Hauptziel**: Aussendienst-Mitarbeitende sollen in unter 30 Sekunden erkennen können, welche Gemeinden ein hohes Marktpotenzial in einer wählbaren Tierkategorie aufweisen.
+
+**Teilziele**
+
+1. Drei wirtschaftliche Sichten unterstützen: rohe Tierzahl, GVE (Intensität), monetarisierbares Futter-/Einstreupotenzial
+2. Filterbarkeit nach Tierart (Rinder, Schweine, Geflügel, Schafe, Ziegen, Pferde, alle)
+3. Detail-Ansicht pro Gemeinde mit Aufschlüsselung und CHF-Schätzung
+4. Merkliste-Funktion: einzelne Gemeinden für die Tagesplanung sammeln und als Excel exportieren
+5. Selbstenthalten — keine Server-Abhängigkeit, kein Login, offline lauffähig
+
+## Funktionale Anforderungen
+
+| ID | Anforderung |
+|:---|:------------|
+| F1 | Choropleth-Karte mit allen 80 politischen TG-Gemeinden |
+| F2 | Layer-Umschalter: Anzahl / GVE / Futterpotenzial |
+| F3 | Tierart-Filter (7 Optionen inkl. „Alle") |
+| F4 | Hover-Tooltip mit Werten und Top-3-Tierarten |
+| F5 | Klick öffnet Detail-Panel mit voller Aufschlüsselung |
+| F6 | Doppelklick fügt Gemeinde zur Merkliste hinzu |
+| F7 | CSV-Export der Merkliste mit allen 12 Spalten |
+| F8 | Beidseitige Hover-Sync zwischen Rangliste und Karte |
+
+## Nicht-funktionale Anforderungen
+
+- **Portabilität**: Single-File HTML, keine externen Abhängigkeiten zur Laufzeit (CDN-Bibliotheken sind ok)
+- **Performanz**: Erst-Render unter 2 s auf einem typischen Aussendienst-Laptop
+- **Datenstand**: Tierbestandsdaten nicht älter als das letzte verfügbare Erhebungsjahr (Update-Zyklus jährlich)
+- **Reproduzierbarkeit**: Build-Pipeline dokumentiert, mit `uv sync && uv run quarto render` voll automatisiert
+
+## Datenquellen & Lizenzen
+
+| Quelle | Lizenz | Verwendung |
+|:-------|:-------|:-----------|
+| swissBOUNDARIES3D (swisstopo) | Open Government Data, freie Nutzung mit Quellenangabe | Gemeindegrenzen |
+| data.tg.ch (Kanton Thurgau) | CC-BY 4.0 | Tierbestandsdaten Dataset `div-la-2` |
+| BLW DZV / Agroscope | Öffentlich (Bundesverordnungen) | GVE-Umrechnungsfaktoren, Futterbedarfsrichtwerte |
+
+## Projektplan
+
+```{mermaid}
+gantt
+  title ThurNaturGau Dashboard — Projektplan
+  dateFormat YYYY-MM-DD
+  section Phase 1
+  Project Charta           :p1, 2026-04-15, 5d
+  section Phase 2
+  Data Acquisition         :p2a, after p1, 4d
+  Data Exploration         :p2b, after p2a, 3d
+  section Phase 3
+  Encoding Decisions       :p3a, after p2b, 3d
+  Prototype Implementation :p3b, after p3a, 7d
+  section Phase 4
+  Heuristic Evaluation     :p4, after p3b, 3d
+  section Phase 5
+  Build Pipeline           :p5, after p4, 3d
+```

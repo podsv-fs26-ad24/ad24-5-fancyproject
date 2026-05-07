@@ -1,0 +1,189 @@
+---
+title: "Deployment"
+subtitle: "Phase 5 — Build the deliverable HTML"
+date: today
+execute:
+  warning: false
+  message: false
+jupyter: python3
+---
+
+This page is *executable*. Rendering it bakes the data snapshots from the [Data Report](data_report.qmd) into the HTML template and writes the final dashboard to `deployment/output/thurnatur_dashboard.html` — the file the field-sales team actually uses.
+
+## Build inputs
+
+```{python}
+#| label: setup
+from pathlib import Path
+import json
+import re
+import base64
+
+ROOT = Path("..")
+GEOJSON_PATH = ROOT / "data" / "tg_gemeinden.geojson"
+RECORDS_PATH = ROOT / "data" / "tierbestaende_latest.json"
+LOGO_PATH = ROOT / "data-raw" / "logo.png"
+TEMPLATE_PATH = ROOT / "deployment" / "template" / "dashboard_template.html"
+OUTPUT_PATH = ROOT / "deployment" / "output" / "thurnatur_dashboard.html"
+OUTPUT_PATH.parent.mkdir(exist_ok=True)
+
+inputs = {
+    "GeoJSON snapshot":        GEOJSON_PATH,
+    "Records snapshot":        RECORDS_PATH,
+    "Logo":                    LOGO_PATH,
+    "HTML template":           TEMPLATE_PATH,
+}
+
+for label, p in inputs.items():
+    status = "✓" if p.exists() else "✗"
+    size = f"{p.stat().st_size/1024:.1f} KB" if p.exists() else "missing"
+    print(f"  {status}  {label:<22} {size:>10}   {p.relative_to(ROOT)}")
+
+assert GEOJSON_PATH.exists(), "Run data_report.qmd first to generate the GeoJSON snapshot."
+assert TEMPLATE_PATH.exists(), "HTML template missing."
+```
+
+## Loading snapshots
+
+```{python}
+#| label: load
+with open(GEOJSON_PATH, 'r', encoding='utf-8') as f:
+    geojson_str = f.read()
+geojson_obj = json.loads(geojson_str)
+print(f"GeoJSON:  {len(geojson_obj['features'])} features")
+
+records = []
+year_used = None
+if RECORDS_PATH.exists():
+    with open(RECORDS_PATH, 'r', encoding='utf-8') as f:
+        rec_data = json.load(f)
+    records = rec_data.get("records", [])
+    year_used = rec_data.get("year")
+    print(f"Records:  {len(records)} for year {year_used}")
+else:
+    print("Records:  (none — dashboard will run with empty fallback)")
+```
+
+## Logo encoding
+
+```{python}
+#| label: logo
+if LOGO_PATH.exists():
+    with open(LOGO_PATH, 'rb') as f:
+        logo_bytes = f.read()
+    logo_b64 = base64.b64encode(logo_bytes).decode('ascii')
+    LOGO_DATA_URI = f"data:image/png;base64,{logo_b64}"
+    print(f"Logo encoded: {len(logo_bytes)/1024:.1f} KB raw → {len(logo_b64)/1024:.1f} KB base64")
+else:
+    LOGO_DATA_URI = ""
+    print("⚠ No logo found — dashboard will render without logo")
+```
+
+## Building the SAMPLE constant
+
+The `SAMPLE` constant in the dashboard is a `{Gemeinde: total_animals}` dict used as an offline-fallback when the in-browser fetch can't reach `data.tg.ch`. We aggregate per-Gemeinde here so the dashboard works the same way without internet on a sales rep's laptop.
+
+```{python}
+#| label: build-sample
+sample = {}
+for r in records:
+    gem = r.get('gemeinde')
+    if not gem:
+        continue
+    try:
+        n = int(r.get('anzahl_tiere', 0) or 0)
+    except (ValueError, TypeError):
+        n = 0
+    sample[gem] = sample.get(gem, 0) + n
+
+print(f"SAMPLE has {len(sample)} Gemeinden, total {sum(sample.values()):,} animals")
+sample_str = json.dumps(sample, ensure_ascii=False)
+print(f"  Serialized: {len(sample_str)/1024:.1f} KB")
+```
+
+## Substituting placeholders
+
+The template contains three placeholders that we replace via regex (using `lambda` callables to avoid backreference confusion when the GeoJSON contains `$` or `\` characters):
+
+```{python}
+#| label: substitute
+with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
+    template = f.read()
+
+# Substitute GEO
+template = re.sub(
+    r'/\*__GEO_PLACEHOLDER__\*/.*?/\*__END_GEO__\*/',
+    lambda m: geojson_str,
+    template,
+    count=1,
+    flags=re.DOTALL,
+)
+
+# Substitute SAMPLE
+template = re.sub(
+    r'/\*__SAMPLE_PLACEHOLDER__\*/.*?/\*__END_SAMPLE__\*/',
+    lambda m: sample_str,
+    template,
+    count=1,
+    flags=re.DOTALL,
+)
+
+# Logo: simple string replace (the placeholder is just a token within the src attribute)
+template = template.replace('/*__LOGO_PLACEHOLDER__*/', LOGO_DATA_URI)
+
+print("Substitutions complete.")
+```
+
+## Writing the dashboard
+
+```{python}
+#| label: write
+with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
+    f.write(template)
+print(f"✓ Wrote {OUTPUT_PATH.relative_to(ROOT)}")
+print(f"  Final size: {OUTPUT_PATH.stat().st_size/1024:.1f} KB")
+```
+
+## Quality checks
+
+```{python}
+#| label: qc
+content = OUTPUT_PATH.read_text(encoding='utf-8')
+
+leftover_placeholders = (
+    content.count('__GEO_PLACEHOLDER__') +
+    content.count('__SAMPLE_PLACEHOLDER__') +
+    content.count('__LOGO_PLACEHOLDER__')
+)
+
+geo_features_in_html = content.count('"type":"Feature"')
+script_tags = content.count('<script')
+size_kb = OUTPUT_PATH.stat().st_size / 1024
+
+print(f"Output:                    {OUTPUT_PATH.name}")
+print(f"Size:                      {size_kb:.1f} KB")
+print(f"Embedded features:         {geo_features_in_html}")
+print(f"<script> tags:             {script_tags}")
+print(f"Leftover placeholders:     {leftover_placeholders}  {'✓' if leftover_placeholders == 0 else '⚠'}")
+
+if leftover_placeholders == 0 and geo_features_in_html > 0:
+    print("\n✅ Dashboard built successfully — ready for distribution.")
+```
+
+## Distribution
+
+The output file `deployment/output/thurnatur_dashboard.html` is fully self-contained:
+
+- All Gemeinde geometry baked in (~440 KB simplified GeoJSON)
+- Latest livestock data baked in as offline fallback
+- Logo embedded as base64
+- Leaflet and Chart.js loaded from CDN at view time
+
+The sales team can:
+
+- open it directly from the file system (double-click)
+- email it as an attachment
+- drop it on a USB stick
+- host it on the company intranet
+
+No server, no installation. To rebuild after fresh data is published on `data.tg.ch`, re-run `cd docs && uv run quarto render`.

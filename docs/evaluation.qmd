@@ -1,0 +1,65 @@
+---
+title: "Evaluation"
+subtitle: "Phase 4 — Heuristic Review and User Feedback"
+date: today
+---
+
+## Status
+
+The dashboard is **mid-development**. This page captures the planned evaluation activities and tracks findings as they come in. It is structured so that future iterations can append observations without restructuring the document.
+
+## Planned methods
+
+### 1. Heuristic evaluation (Nielsen's 10)
+
+A walkthrough of the deployed dashboard against [Nielsen's 10 usability heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/) by the project author and one peer reviewer (Tim or Nikola from the PODSV team). Each heuristic is rated on a 0–4 severity scale; findings with severity ≥ 2 enter the backlog.
+
+**Pre-defined check items per heuristic** (selected, not exhaustive):
+
+| Heuristic | Check item |
+|:----------|:-----------|
+| Visibility of system status | Is the loading spinner visible when the API call runs? Does the year badge update? |
+| Match between system and real world | Are Tierart labels in agricultural-domain language (Mastpoulet, Legehennen)? |
+| User control and freedom | Can the user remove a Merkliste item easily? Can detail panel be closed? |
+| Consistency and standards | Same colour ramp across all three layers; same hover affordance everywhere? |
+| Error prevention | Double-click on already-listed Gemeinde — silent or warned? |
+| Recognition rather than recall | Are layer/Tierart selections visually persistent? |
+| Flexibility and efficiency | CSV export shortcut; keyboard shortcut for closing detail? |
+| Aesthetic and minimalist design | No gratuitous decoration; only required controls visible? |
+| Help users recognise, diagnose, recover from errors | What happens if API is unreachable on first load? |
+| Help and documentation | Is the "Doppelklick = Merkliste" hint visible without being intrusive? |
+
+### 2. Pilot user feedback
+
+A 20-minute think-aloud session with one ZHAW peer (representing the Aussendienst persona Markus from the [Project Charta](project_charta.qmd)). The peer is given two tasks:
+
+1. *"Find the three Thurgau municipalities with the highest pig population and add them to your shortlist for tomorrow's route."*
+2. *"For the top one, what's the estimated annual feed sales potential in CHF?"*
+
+Observations focus on: time-to-completion, dead-ends, moments of confusion, comments about visual design.
+
+### 3. Data accuracy spot-check
+
+Pick three Gemeinden of varying size (e.g. Frauenfeld, Bürglen, Salenstein) and cross-check the dashboard's numbers against the raw `div-la-2` records on `data.tg.ch` to catch aggregation bugs.
+
+## Findings (running list)
+
+> No formal evaluation has been conducted yet. Findings will be appended below as the project progresses.
+
+### Self-identified before formal evaluation
+
+- **CHF estimate is an upper bound, not a market-realistic number** — the model assumes 100 % feed/bedding is purchased through ThurNaturGau. A realistic version would apply Tierart-specific Zukaufsanteile (Rinder ~20–25 %, Schweine/Geflügel ~85–95 %, Pferde ~100 %). Documented in the [Encoding & Design](viz_encoding_design.qmd) page; refinement deferred to v2.
+- **Empty Gemeinden render in light grey but the legend doesn't explain the "no data" colour.** Worth adding a small "keine Daten" tile to the legend.
+- **The double-click-to-add gesture is discoverable only via the hint text.** A subtle hover-state showing a "+" might increase discoverability — to be tested in pilot session.
+
+## Roadmap from evaluation findings
+
+Once the heuristic review and pilot session are run, findings will be triaged into:
+
+- **Quick wins** — fixed in the current iteration before final submission
+- **v2 backlog** — saved for follow-up work, e.g.:
+  - Tierart-specific Zukaufsanteile in the CHF model
+  - Year-over-year comparison view (delta heat-map)
+  - Persistent shortlist across browser sessions (localStorage)
+  - Mobile / tablet layout adaptation
+- **Out of scope** — noted but explicitly not addressed (e.g. authentication, multi-user shortlist sharing)

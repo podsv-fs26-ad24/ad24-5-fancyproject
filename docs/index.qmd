@@ -1,0 +1,34 @@
+---
+title: "ThurNaturGau Marktübersicht"
+subtitle: "Interactive Choropleth Dashboard für den Aussendienst"
+author: "Christian Haag · ZHAW IUNR · PODSV"
+date: today
+---
+
+## Über dieses Projekt
+
+**ThurNaturGau Handel** ist ein (fiktiver) Agrarhändler im Kanton Thurgau. Der Aussendienst soll potenzielle Geschäftsmöglichkeiten — Futter- und Einstreuverkauf an Landwirtschaftsbetriebe — schnell visuell einschätzen können. Dieses Projekt liefert eine selbstenthaltende HTML-Anwendung, die offizielle Tierbestandsdaten von [data.tg.ch](https://data.tg.ch) mit den präzisen Gemeindegrenzen aus *swissBOUNDARIES3D* verknüpft und drei wirtschaftlich relevante Layer auf einer Karte darstellt:
+
+- **Nutztier-Anzahl** (filterbar nach Tierart: Rinder / Schweine / Geflügel / Schafe / Ziegen / Pferde)
+- **Grossvieheinheiten (GVE)** — landwirtschaftliche Intensität, vergleichbar über Tierarten
+- **Futter- und Einstreupotenzial** — geschätzter Jahresbedarf, abgeleitet aus BLW/Agroscope-Faktoren
+
+## Phasen der Visualisierungs-Produktentwicklung
+
+| Phase | Inhalt | Dokumentation |
+|:------|:-------|:--------------|
+| 1. Project Understanding | Stakeholder, Ziele, funktionale & nicht-funktionale Anforderungen | [Project Charta](project_charta.qmd) |
+| 2. Data Acquisition & Exploration | swissBOUNDARIES3D-Aufbereitung, API-Abfrage, Datenqualität | [Data Report](data_report.qmd) |
+| 3. Visual Encoding & Design | Farbschema, Layout, Interaktionsmuster | [Encoding & Design](viz_encoding_design.qmd) |
+| 4. Evaluation | Heuristische Evaluation, Pilotnutzer-Feedback | [Evaluation](evaluation.qmd) |
+| 5. Deployment | Build-Pipeline, fertiges Dashboard | [Deployment](deployment.qmd) |
+
+## Datenquellen
+
+- **Tierbestandsdaten**: [data.tg.ch — Landwirtschaftliche Tierbestände nach Gemeinde (`div-la-2`)](https://data.tg.ch/explore/dataset/div-la-2/)
+- **Gemeindegrenzen**: [swissBOUNDARIES3D von swisstopo](https://www.swisstopo.admin.ch/de/geodata/landscape/boundaries3d.html), Ausgabe 2026-01
+- **GVE-Faktoren & Futtermengen**: BLW Direktzahlungsverordnung (DZV), Agroscope-Fütterungsempfehlungen
+
+## Tech-Stack
+
+Das Projekt verwendet einen hybriden Ansatz: Python verarbeitet Geo- und API-Daten zur Build-Zeit (Quarto-orchestriert), das fertige Dashboard ist reines HTML/JavaScript mit [Leaflet](https://leafletjs.com) für die Karte. Damit kann die finale Datei offline genutzt, per E-Mail verschickt oder auf einem internen Webserver abgelegt werden — ohne Server-Backend.

@@ -1,0 +1,83 @@
+---
+title: "Visual Encoding and Design"
+subtitle: "Phase 3 — From data to interactive product"
+date: today
+---
+
+## Layer encoding
+
+Three semantic layers are toggled via a navbar tab control. The choice is exclusive: only one layer is active at a time, because each measures a different quantity and has its own colour ramp scale. Showing them simultaneously would invite invalid comparisons.
+
+| Layer | Quantity | Colour ramp | Reasoning |
+|:------|:---------|:------------|:----------|
+| **Anzahl** | Tier-Anzahl | sequential green | Default view, intuitive ("more livestock = darker"). Green ties into the agricultural domain. |
+| **GVE** | Grossvieheinheiten | same green ramp | Apples-to-apples comparison across livestock types. Decouples "intensity" from "raw count". |
+| **Futter-Potenzial** | kg Futter / Jahr | same green ramp | Direct business proxy — closely correlates with Verkaufspotenzial in CHF. |
+
+A single sequential ramp across all three layers means the user re-uses one mental colour-to-magnitude mapping. This trades off informational density (you can't compare absolute scales between layers from colour alone) for cognitive simplicity.
+
+## Colour palette
+
+The palette is anchored to two domain colours that read as "agriculture in Thurgau":
+
+| Token | Hex | Role |
+|:------|:----|:----|
+| `--leaf-d` | `#245220` | dark green (top of choropleth ramp, navbar) |
+| `--leaf` | `#3a7a35` | mid green (accents, hover) |
+| `--paper2` / `--paper3` | `#e8f0e5` / `#dde8d8` | light green-tinted neutral (ramp start, panel backgrounds) |
+| `--wheat` | `#c8900a` | gold accent (Merkliste markers, watchlist highlights) |
+| `--brick` | `#a83232` | dark red (destructive: remove, "alle entfernen") |
+| `--ink` / `--ink-mid` / `--ink-faint` | `#1a1a1a` / `#555` / `#999` | typographic hierarchy |
+
+The wheat-gold is *only* used for state markers (★ on watchlist items, brief flash on duplicate-add). Reserving it keeps the visual signal-to-noise ratio high.
+
+## Typography
+
+- **Headers and labels**: Lora (serif) — adds editorial gravitas; the dashboard is a decision tool, not a chat app.
+- **Body and tabular numerics**: Source Sans 3 with `font-variant-numeric: tabular-nums` for aligned columns in rankings and the watchlist.
+
+## Layout
+
+The viewport is split horizontally:
+
+- **Left ~70 %**: full-bleed Leaflet choropleth with floating legend (lower-left) and source attribution (lower-right)
+- **Right sidebar (~30 %, fixed width)**:
+  1. Tierart-Filter chips (Alle, Rinder, Schweine, ...)
+  2. Three KPIs (total, top-Gemeinde, average per Gemeinde)
+  3. Top-20 ranked list with bars, hover-synced to the map
+  4. Merkliste with Excel export
+  5. Detail panel (only visible after a click)
+
+This layout puts the map — the *primary* artifact — front and centre, while keeping all interactive controls within thumb reach in the sidebar.
+
+## Interaction model
+
+| Gesture | Effect |
+|:--------|:-------|
+| Hover ranking row | Highlights corresponding map polygon, shows tooltip |
+| Hover map polygon | Highlights ranking row, shows tooltip with top-3 Tierarten |
+| Click ranking row or polygon | Opens detail panel with full breakdown + CHF estimate |
+| Double-click ranking row or polygon | Adds to Merkliste (+ visual flash if already present) |
+| × on Merkliste item | Removes it |
+| `↓ Liste als Excel` | Downloads CSV with all 12 attribute columns |
+| Layer tabs (Nutztiere / GVE / Futter) | Switches choropleth layer; sidebar values update |
+| Tierart chips | Filters values to one livestock category |
+
+`Leaflet.doubleClickZoom` is **disabled** so the double-click gesture can be repurposed for the watchlist without conflicting with map zoom.
+
+## Detail-panel formula
+
+The CHF estimate ("Verkaufspotenzial") is computed inline:
+
+$$
+\text{Verkaufspotenzial}_\text{CHF} \;=\; \text{Futter}_\text{kg} \times 0{.}50 \;+\; \text{Einstreu}_\text{kg} \times 0{.}30
+$$
+
+The two factors are placeholder unit margins (gemischtes Mineral-/Kraftfutter ≈ 0.50 CHF/kg gross, Stroh/Einstreu ≈ 0.30 CHF/kg). They are explicitly *upper-bound* estimates — the model assumes 100 % of the herd's annual feed/bedding need is purchased through ThurNaturGau. Real numbers would be much smaller and depend on Tierart-specific Zukaufsanteile (ca. 20 % for grazing cattle, 90 %+ for poultry/swine). This refinement is left to a future iteration.
+
+## Rejected alternatives
+
+- **Dot maps** (one dot per animal): would visualize density faithfully, but requires more cognitive effort to compare regions; chosen against because the sidebar already provides ranked numerics.
+- **Diverging colour ramp**: appropriate when there's a meaningful midpoint (above/below average). Our quantities are strictly positive and the user wants "where is the most of X", not "where is X above average". Sequential is correct.
+- **Multi-layer transparency overlay**: was considered for showing GVE on top of Anzahl. Rejected — comparing transparent overlapping ramps is hard, and the layer toggle is a clearer interaction.
+- **Quarto dashboard format** (`format: dashboard`): would have been faster to set up but would lose the custom Leaflet interactions, the watchlist state, and the Excel export. Build-then-deploy as a static HTML keeps full control over the user experience.

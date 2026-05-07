@@ -1,0 +1,59 @@
+project:
+  type: website
+  output-dir: build
+  render:
+    - index.qmd
+    - project_charta.qmd
+    - data_report.qmd
+    - viz_encoding_design.qmd
+    - evaluation.qmd
+    - deployment.qmd
+
+execute:
+  freeze: auto
+
+website:
+  title: "ThurNaturGau Marktübersicht"
+  description: "Visualization product for ThurNaturGau Handel — ZHAW IUNR PODSV course project."
+  navbar:
+    background: primary
+    left:
+      - href: index.qmd
+        text: Home
+      - href: project_charta.qmd
+        text: 1. Project Charta
+      - href: data_report.qmd
+        text: 2. Data Report
+      - href: viz_encoding_design.qmd
+        text: 3. Encoding & Design
+      - href: evaluation.qmd
+        text: 4. Evaluation
+      - href: deployment.qmd
+        text: 5. Deployment
+  sidebar:
+    style: docked
+    contents:
+      - section: "Process Phases"
+        contents:
+          - text: "Project Charta"
+            href: project_charta.qmd
+          - text: "Data Report"
+            href: data_report.qmd
+          - text: "Visual Encoding & Design"
+            href: viz_encoding_design.qmd
+          - text: "Evaluation"
+            href: evaluation.qmd
+          - text: "Deployment"
+            href: deployment.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    code-summary: "Code anzeigen"
+    code-tools: true
+    fig-width: 9
+    fig-height: 6
+    embed-resources: false
