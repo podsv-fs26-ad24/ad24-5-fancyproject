@@ -175,9 +175,9 @@ function colorFor(l,v,mx){
 function aggregate(raw){
   const byGem={};
   for (const r of raw){
-    const g=r.gemeinde; if(!g)continue;
-    const n=r.anzahl_tiere||0; if(!n)continue;
-    const c=classify(r.tierkategorie);
+    const g=r.standortgemeinde; if(!g)continue;
+    const n=r.durchschnittsbestand_stueck||0; if(!n)continue;
+    const c=classify(r.hauptkategorie);
     if(!byGem[g]) byGem[g]={total:0,byCat:{Rinder:0,Schweine:0,'Geflügel':0,Schafe:0,Ziegen:0,Pferde:0,Andere:0},gve:0,feed:0,bed:0};
     const b=byGem[g];
     b.total+=n; b.byCat[c.cat]=(b.byCat[c.cat]||0)+n;
@@ -623,7 +623,7 @@ function exportAllCSV(){
 async function findLatestYear(){
   for (let y=2025; y>=2020; y--){
     try{
-      const r=await fetch(ODS+'/div-la-2/records?limit=1&select=jahr&where=jahr='+y);
+      const r=await fetch(ODS+'/div-la-2/records?limit=1&select=jahr&where=year(jahr)%3D'+y);
       if (!r.ok) continue;
       const d=await r.json();
       if ((d.results||[]).length>0) return y;
@@ -668,7 +668,7 @@ async function loadData(){
   try{
     let all=[], offset=0;
     while (true){
-      const url=ODS+'/div-la-2/records?limit=100&offset='+offset+'&select=gemeinde,tierkategorie,anzahl_tiere&where=jahr='+S.year;
+      const url=ODS+'/div-la-2/records?limit=100&offset='+offset+'&select=standortgemeinde,hauptkategorie,durchschnittsbestand_stueck&where=year(jahr)%3D'+S.year;
       const r=await fetch(url);
       if (!r.ok) break;
       const d=await r.json();
@@ -696,7 +696,7 @@ async function loadData(){
     ];
     for (const g in SAMPLE){
       const t=SAMPLE[g];
-      synth.forEach(c=>S.raw.push({gemeinde:g,tierkategorie:c.tk,anzahl_tiere:Math.round(t*c.frac)}));
+      synth.forEach(c=>S.raw.push({standortgemeinde:g,hauptkategorie:c.tk,durchschnittsbestand_stueck:Math.round(t*c.frac)}));
     }
     S.byGem=aggregate(S.raw);
     document.getElementById('statBadge').className='nav-badge offline';

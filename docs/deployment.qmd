@@ -87,11 +87,11 @@ The `SAMPLE` constant in the dashboard is a `{Gemeinde: total_animals}` dict use
 #| label: build-sample
 sample = {}
 for r in records:
-    gem = r.get('gemeinde')
+    gem = r.get('standortgemeinde')
     if not gem:
         continue
     try:
-        n = int(r.get('anzahl_tiere', 0) or 0)
+        n = round(float(r.get('durchschnittsbestand_stueck', 0) or 0))
     except (ValueError, TypeError):
         n = 0
     sample[gem] = sample.get(gem, 0) + n

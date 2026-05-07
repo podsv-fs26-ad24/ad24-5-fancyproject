@@ -189,7 +189,7 @@ def fetch_year(year: int):
                 params={
                     "limit": page_size,
                     "offset": offset,
-                    "where": f"jahr={year}"
+                    "where": f"year(jahr)={year}"
                 },
                 timeout=10
             )
@@ -236,8 +236,8 @@ if records:
     print(f"Year:                     {year_used}")
     print(f"Records:                  {len(df)}")
     print(f"Columns:                  {list(df.columns)}")
-    print(f"Unique municipalities:    {df['gemeinde'].nunique() if 'gemeinde' in df.columns else 'N/A'}")
-    print(f"Unique livestock types:   {df['tierart'].nunique() if 'tierart' in df.columns else 'N/A'}")
+    print(f"Unique municipalities:    {df['standortgemeinde'].nunique() if 'standortgemeinde' in df.columns else 'N/A'}")
+    print(f"Unique livestock types:   {df['hauptkategorie'].nunique() if 'hauptkategorie' in df.columns else 'N/A'}")
     df.head(3)
 else:
     df = pd.DataFrame()
@@ -272,7 +272,7 @@ The dashboard joins API records to map polygons by Gemeinde name. Mismatches mea
 #| label: matching
 if records and features:
     geo_names = {f['properties']['NAME'] for f in features}
-    data_names = {r.get('gemeinde') for r in records if r.get('gemeinde')}
+    data_names = {r.get('standortgemeinde') for r in records if r.get('standortgemeinde')}
 
     matched = geo_names & data_names
     only_geo = geo_names - data_names
