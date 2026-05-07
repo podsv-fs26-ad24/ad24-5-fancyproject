@@ -29,6 +29,9 @@ jobs:
         with:
           path: docs
 
+      - name: Copy dashboard to Pages artifact
+        run: cp deployment/output/thurnatur_dashboard.html docs/build/thurnatur_dashboard.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

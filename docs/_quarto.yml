@@ -30,6 +30,8 @@ website:
         text: 4. Evaluation
       - href: deployment.qmd
         text: 5. Deployment
+      - text: "▶ Dashboard"
+        href: thurnatur_dashboard.html
   sidebar:
     style: docked
     contents:
