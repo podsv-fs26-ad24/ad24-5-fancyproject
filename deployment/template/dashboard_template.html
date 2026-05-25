@@ -1,7 +1,22 @@
 <!DOCTYPE html>
-<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ThurNaturGau Handel – Marktübersicht</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script><link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"><style>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThurNaturGau Handel – Marktübersicht</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--ink:#1c2b1c;--ink-mid:#3a4f3a;--ink-muted:#7a917a;--ink-faint:#c0d0c0;--paper:#fafcf8;--paper2:#f2f7f0;--paper3:#e8f0e5;--rule:#dce8d8;--leaf:#3a7a34;--leaf-d:#245220;--leaf-m:#5a9e52;--leaf-p:#c8e0c4;--wheat:#c8900a;--wheat-m:#e8aa24;--wheat-p:#f5e4b0;--river:#3a6ea8;--brick:#a8573a;--W:320px;--H:52px;}
+:root{
+  --ink:#1c2b1c;--ink-mid:#3a4f3a;--ink-muted:#7a917a;--ink-faint:#c0d0c0;
+  --paper:#fafcf8;--paper2:#f2f7f0;--paper3:#e8f0e5;--rule:#dce8d8;
+  --leaf:#3a7a34;--leaf-d:#245220;--leaf-m:#5a9e52;--leaf-p:#c8e0c4;
+  --wheat:#c8900a;--wheat-m:#e8aa24;--wheat-p:#f5e4b0;
+  --river:#3a6ea8;--brick:#a8573a;--W:320px;--H:52px;
+}
 html,body{height:100%;overflow:hidden;}
 body{font-family:"Source Sans 3",sans-serif;background:var(--paper);color:var(--ink);display:flex;flex-direction:column;}
 .nav{height:var(--H);background:var(--leaf-d);display:flex;align-items:center;flex-shrink:0;border-bottom:3px solid var(--wheat);position:relative;z-index:900;}
@@ -33,6 +48,8 @@ body{font-family:"Source Sans 3",sans-serif;background:var(--paper);color:var(--
 .leg-t{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--ink-muted);margin-bottom:6px;}
 .leg-ramp{height:7px;border-radius:2px;margin-bottom:5px;}
 .leg-ends{display:flex;justify-content:space-between;font-size:9.5px;color:var(--ink-muted);}
+.leg-unsold{font-size:9px;color:var(--ink-muted);margin-top:5px;display:flex;align-items:center;gap:5px;}
+.leg-unsold-dot{width:10px;height:7px;background:#d4dfd4;border-radius:2px;flex-shrink:0;}
 .map-src{position:absolute;bottom:6px;right:44px;z-index:400;font-size:9.5px;color:var(--ink-muted);background:rgba(250,252,248,0.82);padding:2px 7px;border-radius:3px;pointer-events:none;border:1px solid var(--rule);}
 .sidebar{width:var(--W);background:var(--paper);border-left:1px solid var(--rule);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
 .filter{padding:9px 13px;border-bottom:1px solid var(--rule);background:var(--paper2);}
@@ -56,6 +73,43 @@ body{font-family:"Source Sans 3",sans-serif;background:var(--paper);color:var(--
 .csv-btn.primary{background:var(--leaf-d);color:#fff;border-color:var(--leaf-d);}
 .csv-btn.primary:hover{background:var(--leaf);border-color:var(--leaf);color:#fff;}
 .csv-btn.primary:disabled{background:var(--paper3);color:var(--ink-faint);border-color:var(--rule);cursor:not-allowed;}
+.rank-wrap{flex:1;overflow-y:auto;padding:4px 0;}
+.rank-wrap::-webkit-scrollbar{width:3px;}
+.rank-wrap::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px;}
+#chartWrap{display:none;flex:1;overflow-y:auto;flex-direction:column;padding:8px 10px;min-height:0;}
+#chartWrap::-webkit-scrollbar{width:3px;}
+#chartWrap::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px;}
+.chart-note{font-size:9px;color:var(--ink-muted);margin-top:5px;text-align:center;line-height:1.4;}
+/* ── Stats Overlay ── */
+#statsWrap{display:none;position:absolute;inset:0;z-index:500;background:var(--paper);overflow:hidden;}
+.stats-layout{display:grid;grid-template-columns:1fr 1fr;height:100%;min-height:0;}
+.stats-col{padding:20px 22px;overflow-y:auto;height:100%;}
+.stats-col::-webkit-scrollbar{width:4px;}
+.stats-col::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px;}
+.stats-col-r{border-left:1px solid var(--rule);background:var(--paper2);}
+.stats-col-hd{font-family:"Lora",serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--wheat);display:flex;align-items:baseline;justify-content:space-between;}
+.stats-col-hd span{font-family:"Source Sans 3",sans-serif;font-size:11px;font-weight:400;color:var(--ink-muted);}
+.stat-section-hd{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink-muted);padding-bottom:5px;border-bottom:1px solid var(--rule);margin-bottom:8px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:4px;}
+.stat-card{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:10px 12px;}
+.stats-col-r .stat-card{background:var(--paper2);}
+.stat-card-n{font-family:"Lora",serif;font-size:18px;font-weight:600;color:var(--leaf-d);}
+.stat-card-l{font-size:8.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-muted);margin-top:2px;}
+.stat-card-sub{font-size:9px;margin-top:4px;}
+.stat-bar-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.stat-bar-label{width:65px;font-size:10px;color:var(--ink-mid);flex-shrink:0;}
+.stat-bar-track{flex:1;height:7px;background:var(--rule);border-radius:4px;overflow:hidden;}
+.stat-bar-fill{height:100%;border-radius:4px;}
+.stat-bar-val{font-size:10px;color:var(--ink-mid);width:90px;text-align:right;flex-shrink:0;}
+.stat-tbl{width:100%;border-collapse:collapse;font-size:10.5px;}
+.stat-tbl th{font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-muted);font-weight:600;padding:0 6px 6px 0;border-bottom:1px solid var(--rule);text-align:left;}
+.stat-tbl td{padding:5px 6px 5px 0;border-bottom:1px solid var(--rule);color:var(--ink-mid);}
+.stat-tbl tr:last-child td{border-bottom:none;}
+.stat-tbl .num{text-align:right;font-variant-numeric:tabular-nums;}
+.stat-tbl .highlight{color:var(--wheat);font-weight:600;}
+.stat-tbl tr:hover td{background:rgba(0,0,0,0.025);}
+.stat-mkt-bar{height:8px;background:var(--rule);border-radius:4px;overflow:hidden;margin:3px 0 8px;}
+.stat-mkt-fill{height:100%;background:var(--wheat-m);border-radius:4px;}
 .wl-wrap{border-top:1px solid var(--rule);background:var(--paper2);flex-shrink:0;}
 .wl-head{padding:8px 13px 6px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
 .wl-head-l{min-width:0;flex:1;}
@@ -78,15 +132,13 @@ body{font-family:"Source Sans 3",sans-serif;background:var(--paper);color:var(--
 .rk{display:flex;align-items:center;gap:7px;padding:5px 13px;cursor:pointer;transition:background .08s;border-left:3px solid transparent;user-select:none;}
 .rk.wl{background:rgba(200,144,10,0.08);}
 .rk.wl::after{content:"★";color:var(--wheat);font-size:10px;margin-left:2px;}
-.rank-wrap{flex:1;overflow-y:auto;padding:4px 0;}
-.rank-wrap::-webkit-scrollbar{width:3px;}
-.rank-wrap::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px;}
 .rk:hover{background:var(--paper2);}
 .rk.sel{background:var(--wheat-p);border-left-color:var(--wheat);}
 .rk-pos{font-size:10px;font-weight:700;color:var(--ink-faint);width:16px;text-align:right;flex-shrink:0;}
 .rk-pos.g{color:var(--wheat);}
 .rk-body{flex:1;min-width:0;}
 .rk-name{font-size:12px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.rk-sub{font-size:9.5px;color:var(--ink-muted);}
 .rk-track{height:4px;background:var(--paper3);border-radius:2px;overflow:hidden;}
 .rk-bar{height:100%;border-radius:2px;}
 .rk-bar.leaf{background:var(--leaf-m);}.rk-bar.wheat{background:var(--wheat-m);}.rk-bar.brick{background:var(--brick);}
@@ -94,11 +146,12 @@ body{font-family:"Source Sans 3",sans-serif;background:var(--paper);color:var(--
 .empty{padding:24px 14px;text-align:center;color:var(--ink-muted);font-size:12px;}
 .empty-i{font-size:24px;margin-bottom:8px;}
 .det{border-top:1px solid var(--rule);background:var(--paper2);max-height:0;overflow:hidden;transition:max-height .28s ease;}
-.det.open{max-height:280px;}
-.det-top{display:flex;align-items:baseline;justify-content:space-between;padding:10px 13px 5px;}
+.det.open{max-height:300px;}
+.det-top{display:flex;align-items:baseline;justify-content:space-between;padding:10px 13px 2px;}
 .det-name{font-family:"Lora",serif;font-size:13.5px;font-weight:600;color:var(--ink);}
 .det-x{font-size:11px;color:var(--ink-muted);cursor:pointer;padding:1px 6px;border-radius:3px;}
 .det-x:hover{background:var(--paper3);color:var(--ink);}
+.det-gem{font-size:10px;color:var(--ink-muted);padding:0 13px 5px;}
 .det-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:0 13px 6px;}
 .dk{background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:6px 8px;text-align:center;}
 .dk-n{font-family:"Lora",serif;font-size:13.5px;font-weight:600;color:var(--leaf-d);}
@@ -108,584 +161,1201 @@ body{font-family:"Source Sans 3",sans-serif;background:var(--paper);color:var(--
 .det-sales-t{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--wheat);margin-bottom:3px;}
 .det-sales-v{font-family:"Lora",serif;font-size:14px;font-weight:600;color:var(--ink);}
 .det-sales-v small{font-size:10px;font-weight:400;color:var(--ink-muted);margin-left:4px;}
+.det-nosales{margin:0 13px 8px;padding:6px 9px;background:var(--paper3);border-left:3px solid var(--ink-faint);border-radius:3px;font-size:10.5px;color:var(--ink-muted);}
 .leaflet-popup-content-wrapper{border-radius:4px!important;box-shadow:0 3px 14px rgba(0,0,0,0.12)!important;font-family:"Source Sans 3",sans-serif!important;border:1px solid var(--rule)!important;padding:0!important;}
-.leaflet-popup-content{margin:0!important;padding:11px 13px!important;min-width:170px;}
+.leaflet-popup-content{margin:0!important;padding:11px 13px!important;min-width:160px;}
 .leaflet-tooltip.tnt-tip{background:var(--paper)!important;border:1px solid var(--rule)!important;box-shadow:0 3px 12px rgba(0,0,0,0.12)!important;border-radius:4px!important;padding:7px 10px!important;font-family:"Source Sans 3",sans-serif!important;color:var(--ink)!important;font-size:12px!important;opacity:1!important;}
 .leaflet-tooltip.tnt-tip::before{display:none!important;}
-.tt-name{font-family:"Lora",serif;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.tt-name{font-family:"Lora",serif;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:1px;}
+.tt-gem{font-size:9.5px;color:var(--ink-muted);margin-bottom:4px;}
 .tt-row{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--ink-mid);line-height:1.4;}
 .tt-row b{color:var(--leaf-d);font-weight:600;}
 .tt-row.gold b{color:var(--wheat);}
 .tt-row.brick b{color:var(--brick);}
-.p-name{font-family:"Lora",serif;font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--rule);}
+.p-name{font-family:"Lora",serif;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;padding-bottom:4px;border-bottom:1px solid var(--rule);}
+.p-gem{font-size:9.5px;color:var(--ink-muted);margin-bottom:4px;}
 .p-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-mid);margin-bottom:2px;}
 .p-row b{color:var(--leaf-d);font-weight:600;}
 .p-note{font-size:9.5px;color:var(--ink-muted);margin-top:4px;}
 .leaflet-popup-tip-container{display:none;}
 .leaflet-container{background:#dde8d8!important;}
-</style></head><body><nav class="nav"><div class="nav-logo"><img src="/*__LOGO_PLACEHOLDER__*/" alt="ThurNaturGau Handel"></div><div class="nav-sep"></div><div class="nav-label"><strong>Marktübersicht</strong> &middot; Kanton Thurgau</div><div class="nav-tabs"><button class="tab on" data-l="anzahl" onclick="swL('anzahl')"><span class="tab-dot"></span>Nutztiere</button><button class="tab" data-l="gve" onclick="swL('gve')"><span class="tab-dot"></span>GVE</button><button class="tab" data-l="futter" onclick="swL('futter')"><span class="tab-dot"></span>Futter-Potenzial</button></div><div class="nav-r"><div class="nav-badge offline" id="statBadge">Jahr <b id="navYr">—</b></div><button class="ibtn" onclick="exportAllCSV()" title="Alle Daten als CSV herunterladen">&darr; CSV</button><div class="spinner" id="spin"></div></div></nav><div class="layout"><div class="map-wrap"><div id="map"></div><div class="leg" id="leg"><div class="leg-t" id="legT">Tiere gesamt</div><div class="leg-ramp" id="legR" style="background:linear-gradient(to right,#e8f0e5,#245220)"></div><div class="leg-ends"><span>0</span><span id="legM"></span><span id="legX"></span></div></div><div class="map-src">Quelle: data.tg.ch &middot; Landwirtschaftsamt TG &middot; GVE/Futter: BLW &amp; Agroscope</div></div><div class="sidebar"><div class="filter"><div class="sec-label">Tierart filtern</div><div class="chips"><button class="chip on" data-a="alle" onclick="setA('alle')">Alle</button><button class="chip" data-a="Rinder" onclick="setA('Rinder')">Rinder</button><button class="chip" data-a="Schweine" onclick="setA('Schweine')">Schweine</button><button class="chip" data-a="Geflügel" onclick="setA('Gefl\u00fcgel')">Geflügel</button><button class="chip" data-a="Schafe" onclick="setA('Schafe')">Schafe</button><button class="chip" data-a="Ziegen" onclick="setA('Ziegen')">Ziegen</button><button class="chip" data-a="Pferde" onclick="setA('Pferde')">Pferde</button></div></div><div class="kpis"><div class="kpi"><div class="kpi-n" id="k1">—</div><div class="kpi-l" id="k1l">Tiere total</div></div><div class="kpi"><div class="kpi-n" id="k2">—</div><div class="kpi-l">Top-Gemeinde</div></div><div class="kpi"><div class="kpi-n" id="k3">—</div><div class="kpi-l" id="k3l">Ø Gemeinde</div></div></div><div class="phead"><div class="phead-l"><div class="phead-t" id="pT">Nutztiere nach Gemeinde</div><div class="phead-s">Top 20 &middot; <span id="pYr">—</span> &middot; <span style="color:var(--ink-faint);">Doppelklick = zur Merkliste</span></div></div></div><div class="rank-wrap" id="rankWrap"><div class="empty"><div class="empty-i">⌛</div>Aktuellste Daten werden geladen…</div></div><div class="wl-wrap"><div class="wl-head"><div class="wl-head-l"><div class="wl-head-t">Merkliste <span class="wl-count zero" id="wlCount">0</span></div><div class="wl-hint" id="wlHint">Doppelklick auf Gemeinde zum Hinzufügen</div></div><button class="csv-btn primary" id="wlExport" onclick="exportWatchlist()" disabled title="Merkliste als Excel/CSV herunterladen">↓ Liste als Excel</button></div><div class="wl-body" id="wlBody"><div class="wl-empty">Noch keine Gemeinden auf der Merkliste.<br><b>Tipp:</b> Doppelklick auf eine Gemeinde in der Rangliste oder auf der Karte.</div></div></div><div class="det" id="det"><div class="det-top"><div class="det-name" id="dN">—</div><div class="det-x" onclick="closeDet()">✕ schliessen</div></div><div class="det-row" id="dKpis"></div><div class="det-sales" id="dSales" style="display:none;"><div class="det-sales-t">Verkaufspotenzial ThurNaturGau</div><div class="det-sales-v" id="dSalesV">—</div></div></div></div></div><script>const GEO = /*__GEO_PLACEHOLDER__*/ null /*__END_GEO__*/;
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-logo"><img src="/*__LOGO_PLACEHOLDER__*/" alt="ThurNaturGau Handel"></div>
+  <div class="nav-sep"></div>
+  <div class="nav-label"><strong>Marktübersicht</strong> &middot; Kanton Thurgau</div>
+  <div class="nav-tabs">
+    <button class="tab on" data-l="anzahl" onclick="swL('anzahl')"><span class="tab-dot"></span>Nutztiere</button>
+    <button class="tab" data-l="markt" onclick="swL('markt')"><span class="tab-dot"></span>Verkauft vs. Potenzial</button>
+    <button class="tab" data-l="stats" onclick="swL('stats')"><span class="tab-dot"></span>Statistiken</button>
+  </div>
+  <div class="nav-r">
+    <div class="nav-badge offline" id="statBadge">Jahr <b id="navYr">—</b></div>
+    <button class="ibtn" onclick="exportAllCSV()" title="Alle Daten als CSV herunterladen">&darr; CSV</button>
+    <div class="spinner" id="spin"></div>
+  </div>
+</nav>
+
+<div class="layout">
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="leg" id="leg">
+      <div class="leg-t" id="legT">Tiere gesamt</div>
+      <div class="leg-ramp" id="legR" style="background:linear-gradient(to right,#e8f0e5,#245220)"></div>
+      <div class="leg-ends"><span>0</span><span id="legM"></span><span id="legX"></span></div>
+      <div class="leg-unsold" id="legUnsold" style="display:none;"><div class="leg-unsold-dot"></div>Kein Verkauf</div>
+    </div>
+    <div class="map-src">Quelle: data.tg.ch &middot; Landwirtschaftsamt TG &middot; GVE/Futter: BLW &amp; Agroscope</div>
+    <div id="statsWrap">
+      <div class="stats-layout">
+        <div class="stats-col" id="statsGeneral"></div>
+        <div class="stats-col stats-col-r" id="statsWL"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="filter">
+      <div class="sec-label">Tierart filtern</div>
+      <div class="chips">
+        <button class="chip on" data-a="alle" onclick="setA('alle')">Alle</button>
+        <button class="chip" data-a="Rinder" onclick="setA('Rinder')">Rinder</button>
+        <button class="chip" data-a="Schweine" onclick="setA('Schweine')">Schweine</button>
+        <button class="chip" data-a="Geflügel" onclick="setA('Geflügel')">Geflügel</button>
+        <button class="chip" data-a="Schafe" onclick="setA('Schafe')">Schafe</button>
+        <button class="chip" data-a="Ziegen" onclick="setA('Ziegen')">Ziegen</button>
+        <button class="chip" data-a="Pferde" onclick="setA('Pferde')">Pferde</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-n" id="k1">—</div><div class="kpi-l" id="k1l">Tiere total</div></div>
+      <div class="kpi"><div class="kpi-n" id="k2">—</div><div class="kpi-l">Top-Hof</div></div>
+      <div class="kpi"><div class="kpi-n" id="k3">—</div><div class="kpi-l" id="k3l">Ø Hof</div></div>
+    </div>
+
+    <div class="phead" id="phead">
+      <div class="phead-l">
+        <div class="phead-t" id="pT">Höfe nach Tieranzahl</div>
+        <div class="phead-s">Top 20 &middot; <span id="pYr">—</span> &middot; <span style="color:var(--ink-faint);">Doppelklick = Merkliste</span></div>
+      </div>
+    </div>
+
+    <div class="rank-wrap" id="rankWrap">
+      <div class="empty"><div class="empty-i">⌛</div>Daten werden geladen…</div>
+    </div>
+
+    <div id="chartWrap">
+      <div id="chartCanvasWrap" style="position:relative;min-height:500px;">
+        <canvas id="marktChart"></canvas>
+      </div>
+      <div class="chart-note" id="chartNote"></div>
+    </div>
+
+
+
+    <div class="wl-wrap">
+      <div class="wl-head">
+        <div class="wl-head-l">
+          <div class="wl-head-t">Merkliste <span class="wl-count zero" id="wlCount">0</span></div>
+          <div class="wl-hint" id="wlHint">Doppelklick auf Hof zum Hinzufügen</div>
+        </div>
+        <button class="csv-btn primary" id="wlExport" onclick="exportWatchlist()" disabled title="Merkliste als CSV">↓ CSV</button>
+      </div>
+      <div class="wl-body" id="wlBody">
+        <div class="wl-empty">Noch keine Höfe auf der Merkliste.<br><b>Tipp:</b> Doppelklick auf einen Hof in der Rangliste.</div>
+      </div>
+    </div>
+
+    <div class="det" id="det">
+      <div class="det-top">
+        <div class="det-name" id="dN">—</div>
+        <div class="det-x" onclick="closeDet()">✕ schliessen</div>
+      </div>
+      <div class="det-gem" id="dGem"></div>
+      <div class="det-row" id="dKpis"></div>
+      <div class="det-sales" id="dSales" style="display:none;">
+        <div class="det-sales-t">Futter verkauft an ThurNaturGau</div>
+        <div class="det-sales-v" id="dSalesV">—</div>
+      </div>
+      <div class="det-nosales" id="dNoSales" style="display:none;">Noch kein Futter über ThurNaturGau verkauft.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const GEO = /*__GEO_PLACEHOLDER__*/ null /*__END_GEO__*/;
 const SAMPLE = /*__SAMPLE_PLACEHOLDER__*/ {} /*__END_SAMPLE__*/;
-const GVE_RULES = [["milchkuh", "Rinder", 1.0, 5500, 800], ["milchvieh", "Rinder", 1.0, 5500, 800], ["mutterkuh", "Rinder", 0.8, 4500, 700], ["zuchtstier", "Rinder", 1.0, 5000, 700], ["rind", "Rinder", 0.6, 3500, 500], ["kalb", "Rinder", 0.4, 1800, 300], ["mastschwein", "Schweine", 0.17, 350, 80], ["zuchtsau", "Schweine", 0.26, 1200, 200], ["muttersau", "Schweine", 0.26, 1200, 200], ["ferkel", "Schweine", 0.06, 100, 25], ["eber", "Schweine", 0.25, 1000, 180], ["schwein", "Schweine", 0.17, 350, 80], ["legehen", "Geflügel", 0.01, 40, 8], ["mastpoulet", "Geflügel", 0.007, 20, 4], ["masthuhn", "Geflügel", 0.007, 20, 4], ["junghen", "Geflügel", 0.008, 25, 5], ["pute", "Geflügel", 0.03, 60, 12], ["gans", "Geflügel", 0.02, 45, 10], ["ente", "Geflügel", 0.014, 35, 8], ["geflügel", "Geflügel", 0.014, 35, 8], ["mutterschaf", "Schafe", 0.17, 400, 50], ["schaf", "Schafe", 0.1, 300, 40], ["lamm", "Schafe", 0.05, 150, 20], ["ziege", "Ziegen", 0.1, 300, 40], ["gitzi", "Ziegen", 0.05, 150, 20], ["pferd", "Pferde", 1.0, 4500, 1200], ["pony", "Pferde", 0.7, 3200, 900], ["esel", "Pferde", 0.7, 3200, 900], ["kanin", "Andere", 0.006, 15, 5]];
+
+const GVE_RULES = [
+  ["milchkuh","Rinder",1.0,5500,800],["milchvieh","Rinder",1.0,5500,800],
+  ["mutterkuh","Rinder",0.8,4500,700],["zuchtstier","Rinder",1.0,5000,700],
+  ["rind","Rinder",0.6,3500,500],["kalb","Rinder",0.4,1800,300],
+  ["mastschwein","Schweine",0.17,350,80],["zuchtsau","Schweine",0.26,1200,200],
+  ["muttersau","Schweine",0.26,1200,200],["ferkel","Schweine",0.06,100,25],
+  ["eber","Schweine",0.25,1000,180],["schwein","Schweine",0.17,350,80],
+  ["legehen","Geflügel",0.01,40,8],["mastpoulet","Geflügel",0.007,20,4],
+  ["masthuhn","Geflügel",0.007,20,4],["junghen","Geflügel",0.008,25,5],
+  ["pute","Geflügel",0.03,60,12],["gans","Geflügel",0.02,45,10],
+  ["ente","Geflügel",0.014,35,8],["geflügel","Geflügel",0.014,35,8],
+  ["mutterschaf","Schafe",0.17,400,50],["schaf","Schafe",0.1,300,40],
+  ["lamm","Schafe",0.05,150,20],["ziege","Ziegen",0.1,300,40],
+  ["gitzi","Ziegen",0.05,150,20],["pferd","Pferde",1.0,4500,1200],
+  ["pony","Pferde",0.7,3200,900],["esel","Pferde",0.7,3200,900],
+  ["kanin","Andere",0.006,15,5]
+];
 
 const ODS = 'https://data.tg.ch/api/explore/v2.1/catalog/datasets';
 
-const S = {
-  layer:'anzahl', animal:'alle', year:null,
-  raw:[], byGem:{}, geoIndex:{}, dataToGeo:{}, geoToData:{}, watchlist:[],
-  gL:null, sel:null, live:false,
-};
+// ══ FARM NAME POOLS ══
+const F_PRE = ['Sonnen','Birken','Eichen','Tannen','Wiesen','Bach','Berg','Feld','Moos','Buch','Stein','Linden','Hasel','Erlen','Obst','Reben','Halden','Rohr','Holz','Käs','Riet','Schachen'];
+const F_SUF = ['hof','gut','moos','weid','bühl','egg','rain','matt','berg','bach','ried','hard','holz','gut','matte','rain'];
+const F_FAM = ['Müller','Meier','Schmid','Keller','Weber','Huber','Frei','Zimmermann','Brunner','Steiner','Bauer','Leuthold','Ritter','Küng','Wenger','Bosshard','Niederer','Stäubli','Grob','Eugster','Gasser','Hofer','Suter','Tanner','Vogel','Wolf','Ziegler','Frick','Graf','Mayer','Brunschweiger','Näf','Rüegg','Bolt','Spörri'];
 
-const GVE_MAP = GVE_RULES.slice().sort((a,b)=>b[0].length-a[0].length);
-function classify(tk){
-  const low = (tk||'').toLowerCase();
-  for (const [kw,cat,gve,feed,bed] of GVE_MAP){
-    if (low.indexOf(kw) !== -1) return {cat,gve,feed,bed};
-  }
-  return {cat:'Andere',gve:0.01,feed:20,bed:5};
-}
-
-const map = L.map('map',{center:[47.55,9.05],zoom:10,preferCanvas:true,zoomControl:true,doubleClickZoom:false});
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:17,attribution:'© OSM © CARTO'}).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:17,pane:'shadowPane'}).addTo(map);
-setTimeout(()=>map.invalidateSize(),100);
-window.addEventListener('resize',()=>map.invalidateSize());
-
-// ══ GEO: embedded precise Thurgau boundaries ══
-// 79 municipalities with real swissBOUNDARIES3D geometry (swiss-maps 2024, WGS84)
-// No external loading — works offline, no CORS issues.
-const GEO_FALLBACK = GEO;
-let GEO_LIVE = GEO;
-let GEO_SOURCE = 'embedded swiss-maps 2024';
-
-async function fetchGeo(){
-  console.log('[Geo] Using embedded precise Thurgau boundaries:', GEO.features.length, 'municipalities');
-  return GEO;
-}
+// Sold feed probability by main category
+const SOLD_RATE  = {Rinder:0.38, Schweine:0.28, 'Geflügel':0.22, Schafe:0.32, Ziegen:0.26, Pferde:0.18, Andere:0.15};
+const CAT_COLORS = {Rinder:'#4a8a46',Schweine:'#c48658','Geflügel':'#e0b44c',Schafe:'#9cc098',Ziegen:'#70a46e',Pferde:'#a07008',Andere:'#b0aca8'};
 
 const RAMPS = {
   anzahl:['#e8f0e5','#c4d8bf','#9cc098','#70a46e','#4a8a46','#347030','#245220','#163614'],
   gve:   ['#f5e4b0','#edce80','#e0b44c','#ce9c20','#be8808','#a07008','#845806','#634206'],
   futter:['#f0dccb','#e4c0a4','#d4a27d','#c48658','#b46b3e','#9a5630','#803d22','#5c2a16'],
+  markt: ['#f5e4b0','#edce80','#e0b44c','#ce9c20','#be8808','#a07008','#845806','#634206'],
 };
-function colorFor(l,v,mx){
-  const r=RAMPS[l]; if(!v||!mx)return r[0];
-  return r[Math.min(Math.floor(v/mx*(r.length-1)),r.length-1)];
-}
 
-function aggregate(raw){
-  const byGem={};
-  for (const r of raw){
-    const g=r.standortgemeinde; if(!g)continue;
-    const n=r.durchschnittsbestand_stueck||0; if(!n)continue;
-    const c=classify(r.hauptkategorie);
-    if(!byGem[g]) byGem[g]={total:0,byCat:{Rinder:0,Schweine:0,'Geflügel':0,Schafe:0,Ziegen:0,Pferde:0,Andere:0},gve:0,feed:0,bed:0};
-    const b=byGem[g];
-    b.total+=n; b.byCat[c.cat]=(b.byCat[c.cat]||0)+n;
-    b.gve+=n*c.gve; b.feed+=n*c.feed; b.bed+=n*c.bed;
-  }
-  for(const g in byGem){byGem[g].gve=Math.round(byGem[g].gve);byGem[g].feed=Math.round(byGem[g].feed);byGem[g].bed=Math.round(byGem[g].bed);}
-  return byGem;
-}
+const LEG_CFG = {
+  anzahl:{t:'Tiere gesamt (pro Hof)',g:'linear-gradient(to right,#e8f0e5,#163614)'},
+  gve:{t:'GVE (Grossvieheinheiten)',g:'linear-gradient(to right,#f5e4b0,#634206)'},
+  futter:{t:'Futterbedarf (kg/Jahr)',g:'linear-gradient(to right,#f0dccb,#5c2a16)'},
+  markt:{t:'Verkauftes Futter (kg/Jahr)',g:'linear-gradient(to right,#f5e4b0,#634206)'},
+};
 
 const CAT_FACTORS = {
   gve: {Rinder:0.7,Schweine:0.18,'Geflügel':0.012,Schafe:0.12,Ziegen:0.1,Pferde:0.9,Andere:0.01},
   feed:{Rinder:4000,Schweine:400,'Geflügel':35,Schafe:300,Ziegen:280,Pferde:4000,Andere:20},
 };
 
-function currentValues(){
-  const out={};
-  const f = S.animal !== 'alle';
-  for (const g in S.byGem){
-    const b = S.byGem[g];
-    let v=0;
-    if (S.layer==='anzahl') v = f ? (b.byCat[S.animal]||0) : b.total;
-    else if (S.layer==='gve') v = f ? Math.round((b.byCat[S.animal]||0) * CAT_FACTORS.gve[S.animal]) : b.gve;
-    else v = f ? Math.round((b.byCat[S.animal]||0) * CAT_FACTORS.feed[S.animal]) : b.feed;
-    // Write under geo-name if available (so map lookup works), else data-name
-    const key = (S.dataToGeo && S.dataToGeo[g]) || g;
-    out[key] = v;
+const S = {
+  layer:'anzahl', animal:'alle', year:null, tab:'anzahl',
+  raw:[], byGem:{}, dataToGeo:{}, geoToData:{}, watchlist:[],
+  farmL:null, gemL:null, farmIndex:{},
+  farms:{}, farmGeo:null,
+  sel:null, live:false,
+};
+
+// ══ SEEDED RNG (LCG) ══
+function mkRng(seed) {
+  let s = (Math.abs(seed) | 0) || 1;
+  return function() {
+    s = (Math.imul(1664525, s) + 1013904223) | 0;
+    return (s >>> 0) / 4294967296;
+  };
+}
+
+function strHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  return h >>> 0;
+}
+
+// ══ CLASSIFY ══
+const GVE_MAP = GVE_RULES.slice().sort((a,b) => b[0].length - a[0].length);
+function classify(tk) {
+  const low = (tk||'').toLowerCase();
+  for (const [kw,cat,gve,feed,bed] of GVE_MAP) {
+    if (low.indexOf(kw) !== -1) return {cat,gve,feed,bed};
+  }
+  return {cat:'Andere',gve:0.01,feed:20,bed:5};
+}
+
+// ══ MAP SETUP ══
+const map = L.map('map', {center:[47.55,9.05], zoom:10, preferCanvas:true, zoomControl:true, doubleClickZoom:false});
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {subdomains:'abcd',maxZoom:17,attribution:'© OSM © CARTO'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {subdomains:'abcd',maxZoom:17,pane:'shadowPane'}).addTo(map);
+setTimeout(() => map.invalidateSize(), 100);
+window.addEventListener('resize', () => map.invalidateSize());
+
+const GEO_FALLBACK = GEO;
+let GEO_LIVE = GEO;
+
+// ══ FARM GEOMETRY HELPERS ══
+
+function pip(pt, ring) {
+  let inside = false;
+  const [x,y] = pt;
+  for (let i = 0, j = ring.length-1; i < ring.length; j = i++) {
+    const [xi,yi] = ring[i], [xj,yj] = ring[j];
+    if ((yi > y) !== (yj > y) && x < (xj-xi)*(y-yi)/(yj-yi)+xi) inside = !inside;
+  }
+  return inside;
+}
+
+function mainRing(geom) {
+  if (geom.type === 'Polygon') return geom.coordinates[0];
+  let best = [], bestA = 0;
+  for (const poly of geom.coordinates) {
+    const r = poly[0];
+    let mnX=1e9,mnY=1e9,mxX=-1e9,mxY=-1e9;
+    r.forEach(([x,y])=>{mnX=Math.min(mnX,x);mnY=Math.min(mnY,y);mxX=Math.max(mxX,x);mxY=Math.max(mxY,y);});
+    const a = (mxX-mnX)*(mxY-mnY);
+    if (a > bestA) { bestA=a; best=r; }
+  }
+  return best;
+}
+
+function ringBbox(ring) {
+  let mnX=1e9,mnY=1e9,mxX=-1e9,mxY=-1e9;
+  ring.forEach(([x,y])=>{mnX=Math.min(mnX,x);mnY=Math.min(mnY,y);mxX=Math.max(mxX,x);mxY=Math.max(mxY,y);});
+  return {mnX,mnY,mxX,mxY};
+}
+
+function sampleInside(ring, n, rng) {
+  const {mnX,mnY,mxX,mxY} = ringBbox(ring);
+  const pts = [];
+  for (let tries = 0; pts.length < n && tries < n*400; tries++) {
+    const p = [mnX + rng()*(mxX-mnX), mnY + rng()*(mxY-mnY)];
+    if (pip(p, ring)) pts.push(p);
+  }
+  return pts;
+}
+
+// ══ VORONOI TESSELLATION + POLYGON CLIPPING ══
+// Non-overlapping cells clipped to the convex hull of the district ring.
+// Sutherland-Hodgman requires a convex clipping region, so we use the convex hull
+// rather than the raw (concave) municipality boundary.
+
+// Andrew's monotone chain — returns CCW hull
+function convexHull(pts) {
+  const s = pts.slice().sort((a,b) => a[0]!==b[0] ? a[0]-b[0] : a[1]-b[1]);
+  if (s.length < 3) return s;
+  function cr(o,a,b){ return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]); }
+  const lo = [];
+  for (const p of s) { while (lo.length>=2 && cr(lo[lo.length-2],lo[lo.length-1],p)<=0) lo.pop(); lo.push(p); }
+  const hi = [];
+  for (let i=s.length-1; i>=0; i--) { const p=s[i]; while (hi.length>=2 && cr(hi[hi.length-2],hi[hi.length-1],p)<=0) hi.pop(); hi.push(p); }
+  lo.pop(); hi.pop();
+  return [...lo,...hi];
+}
+
+// Clip convex polygon against half-plane: keep points where nx*x + ny*y <= c
+function clipBisector(poly, nx, ny, c) {
+  if (!poly.length) return [];
+  const out = [], n = poly.length;
+  for (let i = 0; i < n; i++) {
+    const [ax,ay] = poly[i], [bx,by] = poly[(i+1)%n];
+    const da = nx*ax + ny*ay - c;
+    const db = nx*bx + ny*by - c;
+    if (da <= 1e-10) out.push([ax,ay]);
+    if ((da <= 1e-10) !== (db <= 1e-10)) {
+      const t = da / (da - db);
+      out.push([ax + t*(bx-ax), ay + t*(by-ay)]);
+    }
   }
   return out;
 }
 
-const LEG_CFG = {
-  anzahl:{t:'Tiere',g:'linear-gradient(to right,#e8f0e5,#163614)'},
-  gve:{t:'GVE (Grossvieheinheiten)',g:'linear-gradient(to right,#f5e4b0,#634206)'},
-  futter:{t:'Futterbedarf (kg/Jahr)',g:'linear-gradient(to right,#f0dccb,#5c2a16)'},
-};
-function buildLeg(vals){
-  const mx=Math.max(...Object.values(vals).filter(Boolean),1);
-  const c=LEG_CFG[S.layer];
-  document.getElementById('legT').textContent=c.t;
-  document.getElementById('legR').style.background=c.g;
-  document.getElementById('legM').textContent=fS(Math.round(mx/2));
-  document.getElementById('legX').textContent=fS(mx);
+// Clip polygon against one directed edge: keep points to the LEFT (inside for CCW ring)
+function clipEdge(poly, x0, y0, x1, y1) {
+  if (!poly.length) return [];
+  const edx = x1-x0, edy = y1-y0, out = [], n = poly.length;
+  function inside(x,y){ return edx*(y-y0) - edy*(x-x0) >= -1e-10; }
+  for (let i = 0; i < n; i++) {
+    const [ax,ay] = poly[i], [bx,by] = poly[(i+1)%n];
+    const aIn = inside(ax,ay), bIn = inside(bx,by);
+    if (aIn) out.push([ax,ay]);
+    if (aIn !== bIn) {
+      const da = edx*(ay-y0) - edy*(ax-x0);
+      const db = edx*(by-y0) - edy*(bx-x0);
+      const t = da / (da - db);
+      out.push([ax + t*(bx-ax), ay + t*(by-ay)]);
+    }
+  }
+  return out;
 }
 
-function gName(f){return (f.properties||{}).NAME||'';}
+// Compute Voronoi cells for all seeds, clipped to the convex hull of the district.
+// Returns array of closed coordinate rings (or null for degenerate cells).
+function voronoiCells(ring, seeds) {
+  const {mnX,mnY,mxX,mxY} = ringBbox(ring);
+  const pad = Math.max(mxX-mnX, mxY-mnY) * 0.05 + 1e-6;
+  const bbox = [[mnX-pad,mnY-pad],[mxX+pad,mnY-pad],[mxX+pad,mxY+pad],[mnX-pad,mxY+pad]];
+  const hull = convexHull(ring.slice()); // CCW convex hull — safe for Sutherland-Hodgman
 
-// ══ NAME NORMALIZATION ══
-// Matches "Bürglen (TG)" ↔ "Bürglen TG" ↔ "Bürglen" etc.
-// Also handles historic names that were merged into current municipalities.
-function normName(n){
+  return seeds.map((seed, i) => {
+    const [px,py] = seed;
+    let cell = bbox.slice();
+
+    // 1. Clip by perpendicular bisector to every other seed
+    for (let j = 0; j < seeds.length; j++) {
+      if (j === i || !cell.length) continue;
+      const [qx,qy] = seeds[j];
+      const nx = qx-px, ny = qy-py;
+      cell = clipBisector(cell, nx, ny, nx*(px+qx)/2 + ny*(py+qy)/2);
+    }
+
+    // 2. Clip to convex hull of district (S-H requires convex clipping region)
+    const m = hull.length;
+    for (let k = 0; k < m && cell.length; k++) {
+      const [x0,y0] = hull[k], [x1,y1] = hull[(k+1)%m];
+      cell = clipEdge(cell, x0, y0, x1, y1);
+    }
+
+    if (cell.length < 3) return null;
+    return [...cell, cell[0]]; // close the ring
+  });
+}
+
+// Distribute total across n farms with log-normal weighting (sum guaranteed)
+function distribute(total, n, rng) {
+  if (!n || !total) return new Array(n).fill(0);
+  if (n === 1) return [total];
+  const w = [];
+  for (let i = 0; i < n; i++) {
+    const u1 = Math.max(rng(), 1e-9), u2 = rng();
+    const z = Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+    w.push(Math.exp(0.8*z));
+  }
+  const ws = w.reduce((a,b) => a+b, 0);
+  const shares = w.map(wi => Math.max(0, Math.round(total * wi / ws)));
+  let diff = total - shares.reduce((a,b) => a+b, 0);
+  for (let i = 0; diff !== 0 && i < shares.length; i++) {
+    const d = diff > 0 ? 1 : -1;
+    shares[i] = Math.max(0, shares[i] + d);
+    diff -= d;
+  }
+  return shares;
+}
+
+function pickName(rng, used) {
+  let name, tries = 0;
+  do {
+    if (rng() < 0.52) {
+      name = F_PRE[Math.floor(rng()*F_PRE.length)] + F_SUF[Math.floor(rng()*F_SUF.length)];
+    } else {
+      name = F_FAM[Math.floor(rng()*F_FAM.length)] + F_SUF[Math.floor(rng()*F_SUF.length)];
+    }
+    tries++;
+  } while (used.has(name) && tries < 20);
+  if (used.has(name)) name += ' ' + (Math.floor(rng()*8)+2);
+  used.add(name);
+  return name;
+}
+
+// ══ GENERATE FARMS ══
+// Two-phase: (1) collect all seeds globally, (2) compute a single global Voronoi
+// so inter-district bisectors prevent cross-district polygon overlaps.
+function generateFarms(geo, byGem, geoToData) {
+  const farms = {};
+  const features = [];
+  const used = new Set();
+
+  // Phase 1 – collect seeds from every district
+  const districts = [];
+  for (const feat of (geo||GEO_FALLBACK).features) {
+    try {
+      const geoNm  = (feat.properties||{}).NAME||'';
+      const dataNm = geoToData[geoNm] || geoNm;
+      const ring   = mainRing(feat.geometry);
+      if (!ring || ring.length < 4) continue;
+      const {mnX,mnY,mxX,mxY} = ringBbox(ring);
+      if (mxX <= mnX || mxY <= mnY) continue;
+      const aKm2   = (mxX-mnX)*74 * (mxY-mnY)*111;
+      const n      = Math.min(24, Math.max(2, Math.round(aKm2 / 1.2)));
+      const seed   = strHash(geoNm);
+      const centers = sampleInside(ring, n, mkRng(seed));
+      if (centers.length < 1) continue;
+      districts.push({feat, geoNm, dataNm, gem:byGem[dataNm], ring, centers, seed});
+    } catch(e) {
+      console.warn('[Farms] Phase1:', (feat.properties||{}).NAME, e.message);
+    }
+  }
+
+  // Phase 2 – global Voronoi: each seed clipped against ALL other seeds.
+  // Inter-district bisectors ensure no two farms overlap across district lines.
+  const allCenters = districts.flatMap(d => d.centers);
+  let gmnX=1e9, gmnY=1e9, gmxX=-1e9, gmxY=-1e9;
+  allCenters.forEach(([x,y]) => { gmnX=Math.min(gmnX,x); gmnY=Math.min(gmnY,y); gmxX=Math.max(gmxX,x); gmxY=Math.max(gmxY,y); });
+  const gpad  = Math.max(gmxX-gmnX, gmxY-gmnY) * 0.05 + 1e-6;
+  const gbbox = [[gmnX-gpad,gmnY-gpad],[gmxX+gpad,gmnY-gpad],[gmxX+gpad,gmxY+gpad],[gmnX-gpad,gmxY+gpad]];
+
+  let offset = 0;
+  for (const d of districts) {
+    const hull = convexHull(d.ring.slice());
+    d.cells = d.centers.map((center, li) => {
+      const gi = offset + li;
+      const [px,py] = center;
+      let cell = gbbox.slice();
+      for (let j = 0; j < allCenters.length; j++) {
+        if (j === gi || !cell.length) continue;
+        const [qx,qy] = allCenters[j];
+        const nx=qx-px, ny=qy-py;
+        cell = clipBisector(cell, nx, ny, nx*(px+qx)/2 + ny*(py+qy)/2);
+      }
+      for (let k = 0; k < hull.length && cell.length; k++) {
+        const [x0,y0]=hull[k],[x1,y1]=hull[(k+1)%hull.length];
+        cell = clipEdge(cell, x0, y0, x1, y1);
+      }
+      if (cell.length < 3) return null;
+      return [...cell, cell[0]];
+    });
+    offset += d.centers.length;
+  }
+
+  // Phase 3 – build farm records from computed cells
+  for (const {geoNm, dataNm, gem, ring, centers, cells, seed} of districts) {
+    const catShares = {};
+    if (gem) {
+      Object.entries(gem.byCat).forEach(([cat, tot]) => {
+        catShares[cat] = distribute(tot, centers.length, mkRng(seed*31 + strHash(cat)));
+      });
+    }
+    for (let i = 0; i < centers.length; i++) {
+      const cell = cells[i];
+      if (!cell || cell.length < 4) continue;
+      const fid  = geoNm + '__' + i;
+      const nrng = mkRng(seed*17 + i*41 + 7);
+      const name = pickName(nrng, used);
+      const byCat = {};
+      let total=0, gve=0, feed=0, bed=0;
+      Object.entries(catShares).forEach(([cat, arr]) => {
+        const v = arr[i] || 0;
+        byCat[cat] = v; total += v;
+        gve  += v * (CAT_FACTORS.gve[cat]  || 0.01);
+        feed += v * (CAT_FACTORS.feed[cat] || 20);
+        bed  += v * (CAT_FACTORS.feed[cat] || 20) * 0.15;
+      });
+      gve = Math.round(gve); feed = Math.round(feed); bed = Math.round(bed);
+      const mainCat  = Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0]?.[0] || 'Andere';
+      const srng     = mkRng(seed*7 + i*97 + 13);
+      const hasSales = srng() < (SOLD_RATE[mainCat] || 0.25);
+      const feedSold = hasSales ? Math.round(feed * (0.10 + srng()*0.55)) : 0;
+      farms[fid] = {id:fid, name, gemeinde:dataNm, geoGemeinde:geoNm,
+        center:centers[i], byCat, total, gve, feed, bed, feedSold, hasSales, mainCat};
+      features.push({
+        type:'Feature',
+        properties:{fid, name, gemeinde:dataNm},
+        geometry:{type:'Polygon', coordinates:[cell]}
+      });
+    }
+  }
+
+  return {geo:{type:'FeatureCollection',features}, farms};
+}
+
+// ══ NAME NORMALISATION & ALIAS MAP ══
+function normName(n) {
   return (n||'').toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')  // strip accents
-    .replace(/\s*\(tg\)\s*$/i,'')                     // "(TG)"
-    .replace(/\s+tg\s*$/i,'')                         // " TG"
-    .replace(/[\s\-\.]+/g,'');                        // spaces, dashes
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/\s*\(tg\)\s*$/i,'').replace(/\s+tg\s*$/i,'')
+    .replace(/[\s\-\.]+/g,'');
 }
-
-// Historic → current name mapping for merged TG municipalities
-// (handles legacy API data from pre-merger years)
 const MERGER_ALIASES = {
-  'dussnang':       'Fischingen',       // merged 2011
-  'oberwangen':     'Fischingen',
-  'nussbaumen':     'Hüttwilen',        // merged 2012
-  'uerschhausen':   'Hüttwilen',
-  'uesslingen':     'Uesslingen-Buch',  // merged 1996
-  'buch':           'Uesslingen-Buch',
-  'kradolf':        'Kradolf-Schönenberg',
-  'schoenenberg':   'Kradolf-Schönenberg',
-  'schönenberg':    'Kradolf-Schönenberg',
-  'sitterdorf':     'Zihlschlacht-Sitterdorf',
-  'zihlschlacht':   'Zihlschlacht-Sitterdorf',
-  'tobel':          'Tobel-Tägerschen',
-  'taegerschen':    'Tobel-Tägerschen',
-  'tägerschen':     'Tobel-Tägerschen',
-  'kreuzlingenbernrain':'Kreuzlingen',
-  'bernrain':       'Kreuzlingen',
-  'emmishofen':     'Kreuzlingen',
-  'kurzrickenbach': 'Kreuzlingen',
-  'waeldi':         'Wäldi',
-  'waengi':         'Wängi',
-  'maerstetten':    'Märstetten',
+  'dussnang':'Fischingen','oberwangen':'Fischingen',
+  'nussbaumen':'Hüttwilen','uerschhausen':'Hüttwilen',
+  'uesslingen':'Uesslingen-Buch','buch':'Uesslingen-Buch',
+  'kradolf':'Kradolf-Schönenberg','schoenenberg':'Kradolf-Schönenberg','schönenberg':'Kradolf-Schönenberg',
+  'sitterdorf':'Zihlschlacht-Sitterdorf','zihlschlacht':'Zihlschlacht-Sitterdorf',
+  'tobel':'Tobel-Tägerschen','taegerschen':'Tobel-Tägerschen','tägerschen':'Tobel-Tägerschen',
+  'kreuzlingenbernrain':'Kreuzlingen','bernrain':'Kreuzlingen',
+  'emmishofen':'Kreuzlingen','kurzrickenbach':'Kreuzlingen',
+  'waeldi':'Wäldi','waengi':'Wängi','maerstetten':'Märstetten',
 };
-
-// Maps data gemeinde-name → geo feature NAME (both directions)
-function buildNameIndex(){
-  S.dataToGeo = {};
-  S.geoToData = {};
-  const geoNames = Object.keys(S.geoIndex);
+function buildNameIndex() {
+  S.dataToGeo = {}; S.geoToData = {};
+  const geo = GEO_LIVE || GEO_FALLBACK;
+  if (!geo) return;
+  const geoNames = geo.features.map(f => (f.properties||{}).NAME||'').filter(Boolean);
   const dataNames = Object.keys(S.byGem);
-  if (!geoNames.length || !dataNames.length) return;
-
   const geoNorm = {};
-  geoNames.forEach(g=>{ geoNorm[normName(g)] = g; });
-
-  const unmatched = [];
-  dataNames.forEach(d=>{
+  geoNames.forEach(g => { geoNorm[normName(g)] = g; });
+  dataNames.forEach(d => {
     const key = normName(d);
     let hit = geoNorm[key];
-
-    // Fallback 1: alias table (handles merged municipalities)
-    if (!hit && MERGER_ALIASES[key]){
-      hit = MERGER_ALIASES[key];
-    }
-
-    // Fallback 2: prefix match (handles "Nussbaumen TG" → "Nussbaumen")
-    if (!hit){
-      for (const gk in geoNorm){
-        if (gk.startsWith(key) || key.startsWith(gk)){
-          if (Math.abs(gk.length - key.length) <= 3){
-            hit = geoNorm[gk];
-            break;
-          }
-        }
+    if (!hit && MERGER_ALIASES[key]) hit = MERGER_ALIASES[key];
+    if (!hit) {
+      for (const gk in geoNorm) {
+        if ((gk.startsWith(key)||key.startsWith(gk)) && Math.abs(gk.length-key.length)<=3) { hit=geoNorm[gk]; break; }
       }
     }
-
-    if (hit){
-      S.dataToGeo[d] = hit;
-      S.geoToData[hit] = d;
-    } else {
-      unmatched.push(d);
-    }
+    if (hit) { S.dataToGeo[d]=hit; S.geoToData[hit]=d; }
   });
-  const matched = Object.keys(S.dataToGeo).length;
-  console.log('[Match]', matched, 'of', dataNames.length, 'data names matched to', geoNames.length, 'geo polygons');
-  if (unmatched.length){
-    console.warn('[Match] Unmatched data names:', unmatched);
-  }
-  // Also log geo polygons without data
-  const unmappedGeo = geoNames.filter(g => !S.geoToData[g]);
-  if (unmappedGeo.length){
-    console.log('[Match] Geo polygons without data:', unmappedGeo.length, unmappedGeo.slice(0,10));
-  }
 }
 
-function renderMap(){
-  const vals=currentValues();
-  const mx=Math.max(...Object.values(vals).filter(Boolean),1);
-  if (S.gL){
-    S.gL.eachLayer(lyr=>{
-      const v=vals[gName(lyr.feature)]||0;
-      lyr.setStyle({fillColor:colorFor(S.layer,v,mx),fillOpacity:v?.8:.18});
-      updateTooltip(lyr,vals);
-      updatePopup(lyr,vals);
-    });
-  } else {
-    S.gL = L.geoJSON(GEO_LIVE || GEO_FALLBACK, {
-      style:f=>{const v=vals[gName(f)]||0; return {fillColor:colorFor(S.layer,v,mx),fillOpacity:v?.8:.18,color:'#2a5828',weight:.8,opacity:.55};},
-      onEachFeature:(f,lyr)=>{
-        const nm=gName(f); S.geoIndex[nm]=lyr;
-        lyr.on({
-          mouseover(e){
-            if (S.sel !== nm) e.target.setStyle({weight:2.2,color:'#1a3a18',fillOpacity:.93});
-            e.target.bringToFront();
-          },
-          mouseout(e){
-            S.gL.resetStyle(e.target);
-            if(S.sel===nm) e.target.setStyle({weight:2.5,color:'#c8900a',fillOpacity:.95});
-          },
-          click(){openG(nm);},
-          dblclick(e){ L.DomEvent.stop(e); addToWatchlist(nm); },
-        });
-        updateTooltip(lyr,vals);
-        updatePopup(lyr,vals);
-      },
-    }).addTo(map);
+// ══ AGGREGATE (byGem) ══
+function aggregate(raw) {
+  const byGem = {};
+  for (const r of raw) {
+    const g = r.standortgemeinde; if (!g) continue;
+    const n = r.durchschnittsbestand_stueck || 0; if (!n) continue;
+    const c = classify(r.hauptkategorie);
+    if (!byGem[g]) byGem[g] = {total:0,byCat:{Rinder:0,Schweine:0,'Geflügel':0,Schafe:0,Ziegen:0,Pferde:0,Andere:0},gve:0,feed:0,bed:0};
+    const b = byGem[g];
+    b.total+=n; b.byCat[c.cat]=(b.byCat[c.cat]||0)+n;
+    b.gve+=n*c.gve; b.feed+=n*c.feed; b.bed+=n*c.bed;
   }
-  buildLeg(vals); renderKPIs(vals); renderRank(vals);
+  for (const g in byGem) {
+    byGem[g].gve=Math.round(byGem[g].gve);
+    byGem[g].feed=Math.round(byGem[g].feed);
+    byGem[g].bed=Math.round(byGem[g].bed);
+  }
+  return byGem;
 }
 
-// Hover tooltip — shows current filter-context value
-function updateTooltip(lyr,vals){
-  const nm=gName(lyr.feature);
-  const v=vals[nm];
-  const dataKey = (S.geoToData && S.geoToData[nm]) || nm;
-  const b=S.byGem[dataKey];
-  const units={anzahl:'Tiere',gve:'GVE',futter:'kg Futter/J'};
-  const tipCls=S.layer==='gve'?' gold':S.layer==='futter'?' brick':'';
-  const filt = S.animal==='alle' ? units[S.layer] : S.animal;
+// ══ CURRENT VALUES ══
+function currentValues() {
+  const out = {};
+  const f = S.animal !== 'alle';
+  for (const id in S.farms) {
+    const fm = S.farms[id];
+    let v = 0;
+    if (S.layer === 'anzahl')     v = f ? (fm.byCat[S.animal]||0) : fm.total;
+    else if (S.layer === 'gve')   v = f ? Math.round((fm.byCat[S.animal]||0)*(CAT_FACTORS.gve[S.animal]||0)) : fm.gve;
+    else if (S.layer === 'futter')v = f ? Math.round((fm.byCat[S.animal]||0)*(CAT_FACTORS.feed[S.animal]||0)) : fm.feed;
+    else if (S.layer === 'markt') v = fm.feedSold;
+    out[id] = v;
+  }
+  return out;
+}
 
-  let h='<div class="tt-name">'+nm+'</div>';
-  h+='<div class="tt-row'+tipCls+'"><span>'+filt+'</span><b>'+(v?fN(v):'—')+'</b></div>';
+// ══ COLOR ══
+function colorFor(l, v, mx) {
+  const r = RAMPS[l] || RAMPS.anzahl;
+  if (!v || !mx) return r[0];
+  return r[Math.min(Math.floor(v/mx*(r.length-1)), r.length-1)];
+}
 
-  if (b){
-    if (S.animal==='alle' && S.layer==='anzahl'){
-      // show top-3 categories on hover
-      const cats = Object.entries(b.byCat).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]).slice(0,3);
-      cats.forEach(([c,n])=>{
-        h+='<div class="tt-row" style="font-size:10.5px;color:var(--ink-muted);"><span>'+c+'</span><span>'+fN(n)+'</span></div>';
-      });
-    } else if (S.layer!=='anzahl'){
-      h+='<div class="tt-row" style="font-size:10.5px;color:var(--ink-muted);"><span>Tiere total</span><span>'+fN(b.total)+'</span></div>';
+// ══ MAP RENDER ══
+function farmStyle(f, vals, mx) {
+  const fid = f.properties.fid;
+  const fm = S.farms[fid];
+  if (S.layer === 'markt') {
+    if (!fm || !fm.hasSales)
+      return {fillColor:'#d4dfd4',fillOpacity:0.55,color:'#aabcaa',weight:0.6,opacity:0.5};
+    const v = fm.feedSold;
+    return {fillColor:colorFor('markt',v,mx),fillOpacity:0.88,color:'#7a5a10',weight:0.8,opacity:0.7};
+  }
+  const v = vals[fid] || 0;
+  return {fillColor:colorFor(S.layer,v,mx),fillOpacity:v?0.82:0.18,color:'#2a5828',weight:0.6,opacity:0.45};
+}
+
+function renderMap() {
+  const vals = currentValues();
+  const mx = Math.max(...Object.values(vals).filter(Boolean), 1);
+
+  if (!S.farmL) {
+    // Faint municipality boundaries behind farms
+    if (!S.gemL) {
+      S.gemL = L.geoJSON(GEO_LIVE || GEO_FALLBACK, {
+        style:{fillColor:'transparent',fillOpacity:0,color:'#4a7a48',weight:1.4,opacity:0.35}
+      }).addTo(map);
     }
+    // Farm layer
+    if (S.farmGeo) {
+      S.farmL = L.geoJSON(S.farmGeo, {
+        style: f => farmStyle(f, vals, mx),
+        onEachFeature: (f, lyr) => {
+          const fid = f.properties.fid;
+          S.farmIndex[fid] = lyr;
+          lyr.on({
+            mouseover(e) {
+              if (S.sel !== fid) e.target.setStyle({weight:2,color:'#1a3a18',fillOpacity:.95});
+              e.target.bringToFront();
+            },
+            mouseout(e) {
+              S.farmL.resetStyle(e.target);
+              if (S.sel === fid) e.target.setStyle({weight:2.5,color:'#c8900a',fillOpacity:.97});
+            },
+            click()   { openFarm(fid); },
+            dblclick(e){ L.DomEvent.stop(e); addToWatchlist(fid); },
+          });
+          updateFarmTooltip(lyr, vals, mx);
+        }
+      }).addTo(map);
+    }
+  } else {
+    S.farmL.eachLayer(lyr => {
+      const fid = lyr.feature.properties.fid;
+      lyr.setStyle(farmStyle(lyr.feature, vals, mx));
+      updateFarmTooltip(lyr, vals, mx);
+    });
+  }
+
+  buildLeg(vals, mx);
+  renderKPIs(vals);
+  renderRank(vals);
+}
+
+function updateFarmTooltip(lyr, vals, mx) {
+  const fid = lyr.feature.properties.fid;
+  const fm = S.farms[fid];
+  if (!fm) return;
+  const v = vals[fid];
+  const units = {anzahl:'Tiere',gve:'GVE',futter:'kg Futter/J',markt:'kg verkauft'};
+  const cls = S.layer==='gve'?' gold':S.layer==='futter'?' brick':S.layer==='markt'?' gold':'';
+
+  let h = '<div class="tt-name">' + fm.name + '</div>';
+  h += '<div class="tt-gem">' + fm.gemeinde + '</div>';
+  h += '<div class="tt-row' + cls + '"><span>' + (S.animal==='alle' ? units[S.layer] : S.animal) + '</span><b>' + (v ? fN(v) : '—') + '</b></div>';
+
+  if (S.layer === 'markt') {
+    if (fm.hasSales && fm.feed > 0) {
+      const pct = Math.round(fm.feedSold / fm.feed * 100);
+      h += '<div class="tt-row" style="font-size:10px;color:var(--ink-muted);">Potenzial: ' + fS(fm.feed) + ' kg · ' + pct + '% ausgeschöpft</div>';
+    } else {
+      h += '<div class="tt-row" style="font-size:10px;color:var(--ink-muted);">Noch kein Verkauf</div>';
+    }
+  } else if (S.layer === 'anzahl' && S.animal === 'alle') {
+    const cats = Object.entries(fm.byCat).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]).slice(0,2);
+    cats.forEach(([c,n]) => {
+      h += '<div class="tt-row" style="font-size:10px;color:var(--ink-muted);"><span>' + c + '</span><span>' + fN(n) + '</span></div>';
+    });
   }
 
   const opts = {className:'tnt-tip',direction:'top',offset:[0,-5],sticky:true,opacity:1};
-  if (lyr.getTooltip()) {
-    lyr.setTooltipContent(h);
-  } else {
-    lyr.bindTooltip(h, opts);
-  }
+  if (lyr.getTooltip()) lyr.setTooltipContent(h);
+  else lyr.bindTooltip(h, opts);
 }
 
-function updatePopup(lyr,vals){
-  const nm=gName(lyr.feature);
-  const v=vals[nm];
-  const dataKey = (S.geoToData && S.geoToData[nm]) || nm;
-  const b=S.byGem[dataKey];
-  const units={anzahl:'Tiere',gve:'GVE',futter:'kg Futter'};
-  let h='<div class="p-name">'+nm+'</div><div class="p-row">'+units[S.layer]+' <b>'+(v?fN(v):'—')+'</b></div>';
-  if (b && S.layer!=='anzahl') h+='<div class="p-row" style="font-size:10px;color:var(--ink-muted)">Tiere total: '+fN(b.total)+'</div>';
-  h+='<div class="p-note">'+(S.year||'')+(S.live?' · data.tg.ch':' · Beispieldaten')+'</div>';
-  lyr.setPopupContent(h);
-  if (!lyr.getPopup()) lyr.bindPopup(h);
+function buildLeg(vals, mx) {
+  const c = LEG_CFG[S.layer] || LEG_CFG.anzahl;
+  document.getElementById('legT').textContent = c.t;
+  document.getElementById('legR').style.background = c.g;
+  document.getElementById('legM').textContent = fS(Math.round(mx/2));
+  document.getElementById('legX').textContent = fS(mx);
+  document.getElementById('legUnsold').style.display = S.layer==='markt' ? '' : 'none';
 }
 
-// ══ HOVER-SYNC: List → Map highlight ══
-function hoverGem(nm){
-  const dataKey = (S.geoToData && S.geoToData[nm]) || nm;
-  const geoKey  = (S.dataToGeo && S.dataToGeo[dataKey]) || dataKey;
-  if (S.sel === dataKey) return; // don't override selection
-  const lyr = S.geoIndex[geoKey];
+// ══ HOVER FARM ══
+function hoverFarm(fid) {
+  if (S.sel === fid) return;
+  const lyr = S.farmIndex[fid];
   if (!lyr) return;
-  lyr.setStyle({weight:2.2,color:'#1a3a18',fillOpacity:.93});
+  lyr.setStyle({weight:2,color:'#1a3a18',fillOpacity:.93});
   lyr.bringToFront();
   lyr.openTooltip();
 }
-function unhoverGem(nm){
-  const dataKey = (S.geoToData && S.geoToData[nm]) || nm;
-  const geoKey  = (S.dataToGeo && S.dataToGeo[dataKey]) || dataKey;
-  if (S.sel === dataKey) return;
-  const lyr = S.geoIndex[geoKey];
+function unhoverFarm(fid) {
+  if (S.sel === fid) return;
+  const lyr = S.farmIndex[fid];
   if (!lyr) return;
-  S.gL.resetStyle(lyr);
+  if (S.farmL) S.farmL.resetStyle(lyr);
   lyr.closeTooltip();
 }
 
-function renderKPIs(vals){
-  const arr=Object.values(vals).filter(Boolean);
-  if (!arr.length){['k1','k2','k3'].forEach(id=>document.getElementById(id).textContent='—');return;}
-  const tot=arr.reduce((a,b)=>a+b,0);
-  const avg=Math.round(tot/arr.length);
-  const top=Object.entries(vals).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
-  const cls=S.layer==='gve'?'w':S.layer==='futter'?'br':'';
+// ══ KPIs ══
+function renderKPIs(vals) {
+  const entries = Object.entries(vals).filter(([,v])=>v>0);
+  if (!entries.length) {
+    ['k1','k2','k3'].forEach(id=>document.getElementById(id).textContent='—');
+    return;
+  }
+  const tot = entries.reduce((a,[,v])=>a+v,0);
+  const avg = Math.round(tot / entries.length);
+  const topId = entries.sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+  const topName = (S.farms[topId]?.name||topId).split('hof')[0].split('gut')[0].split('moos')[0];
+  const cls = S.layer==='gve'?'w':S.layer==='futter'||S.layer==='markt'?'br':'';
   ['k1','k2','k3'].forEach(id=>document.getElementById(id).className='kpi-n '+cls);
-  document.getElementById('k1').textContent=fS(tot);
-  document.getElementById('k2').textContent=top.split(' ')[0];
-  document.getElementById('k3').textContent=fS(avg);
-  const l={anzahl:'Tiere total',gve:'GVE total',futter:'Futter kg/Jahr'};
-  document.getElementById('k1l').textContent=l[S.layer];
+  document.getElementById('k1').textContent = fS(tot);
+  document.getElementById('k2').textContent = topName.slice(0,12);
+  document.getElementById('k3').textContent = fS(avg);
+  const lb = {anzahl:'Tiere total',gve:'GVE total',futter:'Futter kg/Jahr',markt:'Verkauft kg/J'};
+  document.getElementById('k1l').textContent = lb[S.layer]||'Total';
 }
 
-function renderRank(vals){
-  const srt=Object.entries(vals).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,20);
-  if (!srt.length){document.getElementById('rankWrap').innerHTML='<div class="empty"><div class="empty-i">🔍</div>Keine Daten</div>';return;}
-  const mx=srt[0][1];
-  const bc=S.layer==='gve'?'wheat':S.layer==='futter'?'brick':'leaf';
-  const html=new Array(srt.length);
-  for (let i=0;i<srt.length;i++){
-    const [n,v]=srt[i];
-    const esc=n.replace(/'/g,"\\'");
-    const pct=(v/mx*100).toFixed(1);
-    const onWL = S.watchlist.includes(n) ? ' wl' : '';
-    html[i]='<div class="rk'+(n===S.sel?' sel':'')+onWL+'" onclick="openG(\''+esc+'\')" ondblclick="addToWatchlist(\''+esc+'\')" onmouseenter="hoverGem(\''+esc+'\')" onmouseleave="unhoverGem(\''+esc+'\')" title="Klick = Details · Doppelklick = Merkliste"><div class="rk-pos'+(i<3?' g':'')+'">'+(i+1)+'</div><div class="rk-body"><div class="rk-name">'+n+'</div><div class="rk-track"><div class="rk-bar '+bc+'" style="width:'+pct+'%"></div></div></div><div class="rk-val">'+fS(v)+'</div></div>';
+// ══ RANKING ══
+function renderRank(vals) {
+  const wrap = document.getElementById('rankWrap');
+  const bc = S.layer==='gve'?'wheat':S.layer==='futter'?'brick':S.layer==='markt'?'wheat':'leaf';
+
+  const srt = Object.entries(vals).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  if (!srt.length) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-i">🔍</div>Keine Daten</div>';
+    return;
   }
-  document.getElementById('rankWrap').innerHTML=html.join('');
+  const mxV = srt[0][1];
+  const html = srt.map(([fid,v],i) => {
+    const fm = S.farms[fid];
+    const name = fm?.name || fid;
+    const gem = fm?.gemeinde || '';
+    const esc = fid.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const onWL = S.watchlist.includes(fid) ? ' wl' : '';
+    const pct = (v/mxV*100).toFixed(1);
+    let extra = '';
+    if (S.layer==='markt' && fm?.feed>0) {
+      extra = ' <span style="font-size:9px;color:var(--ink-muted)">'+Math.round(v/fm.feed*100)+'%</span>';
+    }
+    return '<div class="rk'+(fid===S.sel?' sel':'')+onWL+'" '
+      + 'onclick="openFarm(\''+esc+'\')" '
+      + 'ondblclick="addToWatchlist(\''+esc+'\')" '
+      + 'onmouseenter="hoverFarm(\''+esc+'\')" '
+      + 'onmouseleave="unhoverFarm(\''+esc+'\')" '
+      + 'title="Klick=Details · Doppelklick=Merkliste">'
+      + '<div class="rk-pos'+(i<3?' g':'')+'">'+( i+1)+'</div>'
+      + '<div class="rk-body">'
+      + '<div class="rk-name">'+name+'</div>'
+      + '<div class="rk-sub">'+gem+'</div>'
+      + '<div class="rk-track"><div class="rk-bar '+bc+'" style="width:'+pct+'%"></div></div>'
+      + '</div>'
+      + '<div class="rk-val">'+fS(v)+extra+'</div>'
+      + '</div>';
+  }).join('');
+  wrap.innerHTML = html;
 }
 
-function openG(nm){
-  // nm can be either data-name (from ranking) or geo-name (from map click)
-  // Resolve to canonical data-name for state + byGem lookup
-  const dataKey = (S.geoToData && S.geoToData[nm]) || nm;
-  const geoKey  = (S.dataToGeo && S.dataToGeo[dataKey]) || dataKey;
-  S.sel = dataKey;
-  const vals=currentValues();
+// ══ FARM DETAIL ══
+function openFarm(fid) {
+  S.sel = fid;
+  const vals = currentValues();
   renderRank(vals);
-  Object.values(S.geoIndex).forEach(l=>S.gL&&S.gL.resetStyle(l));
-  const lyr=S.geoIndex[geoKey];
-  if (lyr){lyr.setStyle({weight:2.5,color:'#c8900a',fillOpacity:.95});lyr.bringToFront();}
+
+  if (S.farmL) S.farmL.eachLayer(l => S.farmL.resetStyle(l));
+  const lyr = S.farmIndex[fid];
+  if (lyr) { lyr.setStyle({weight:2.5,color:'#c8900a',fillOpacity:.97}); lyr.bringToFront(); }
+
+  const fm = S.farms[fid];
   document.getElementById('det').classList.add('open');
-  document.getElementById('dN').textContent=dataKey;
-  const b=S.byGem[dataKey];
-  if (!b){
-    document.getElementById('dKpis').innerHTML='<div class="dk" style="grid-column:1/-1;"><div class="dk-l">Keine Daten</div></div>';
-    document.getElementById('dSales').style.display='none';return;
+  document.getElementById('dN').textContent = fm?.name || fid;
+  document.getElementById('dGem').textContent = fm ? 'Gemeinde: '+fm.gemeinde : '';
+
+  if (!fm) {
+    document.getElementById('dKpis').innerHTML = '<div class="dk" style="grid-column:1/-1;"><div class="dk-l">Keine Daten</div></div>';
+    document.getElementById('dSales').style.display = 'none';
+    document.getElementById('dNoSales').style.display = 'none';
+    return;
   }
-  let k='';
-  if (S.layer==='anzahl'||S.layer==='gve'){
-    k+='<div class="dk"><div class="dk-n">'+fN(b.byCat.Rinder||0)+'</div><div class="dk-l">Rinder</div></div>';
-    k+='<div class="dk"><div class="dk-n">'+fN(b.byCat.Schweine||0)+'</div><div class="dk-l">Schweine</div></div>';
-    k+='<div class="dk"><div class="dk-n">'+fN(b.byCat['Geflügel']||0)+'</div><div class="dk-l">Geflügel</div></div>';
+
+  let k = '';
+  if (S.layer === 'anzahl' || S.layer === 'gve') {
+    k += '<div class="dk"><div class="dk-n">'+fN(fm.byCat.Rinder||0)+'</div><div class="dk-l">Rinder</div></div>';
+    k += '<div class="dk"><div class="dk-n">'+fN(fm.byCat.Schweine||0)+'</div><div class="dk-l">Schweine</div></div>';
+    k += '<div class="dk"><div class="dk-n">'+fN(fm.byCat['Geflügel']||0)+'</div><div class="dk-l">Geflügel</div></div>';
   } else {
-    k+='<div class="dk"><div class="dk-n br">'+fS(b.feed)+'</div><div class="dk-l">Futter kg/Jahr</div></div>';
-    k+='<div class="dk"><div class="dk-n br">'+fS(b.bed)+'</div><div class="dk-l">Einstreu kg/Jahr</div></div>';
-    k+='<div class="dk"><div class="dk-n w">'+fN(b.gve)+'</div><div class="dk-l">GVE</div></div>';
+    k += '<div class="dk"><div class="dk-n br">'+fS(fm.feed)+'</div><div class="dk-l">Futter kg/Jahr</div></div>';
+    k += '<div class="dk"><div class="dk-n br">'+fS(fm.bed)+'</div><div class="dk-l">Einstreu kg/J</div></div>';
+    k += '<div class="dk"><div class="dk-n w">'+fN(fm.gve)+'</div><div class="dk-l">GVE</div></div>';
   }
-  document.getElementById('dKpis').innerHTML=k;
-  const pot=Math.round(b.feed*0.50+b.bed*0.30);
-  document.getElementById('dSales').style.display='block';
-  document.getElementById('dSalesV').innerHTML='CHF '+fS(pot)+'<small>/ Jahr Marktvolumen (Schätzung)</small>';
+  document.getElementById('dKpis').innerHTML = k;
+
+  if (fm.hasSales) {
+    const pct = fm.feed>0 ? Math.round(fm.feedSold/fm.feed*100) : 0;
+    document.getElementById('dSales').style.display = 'block';
+    document.getElementById('dNoSales').style.display = 'none';
+    document.getElementById('dSalesV').innerHTML = fS(fm.feedSold)+' kg<small> verkauft ('+pct+'% des Potenzials)</small>';
+  } else {
+    document.getElementById('dSales').style.display = 'none';
+    document.getElementById('dNoSales').style.display = 'block';
+  }
 }
 
-function closeDet(){
-  S.sel=null;
-  if (S.gL) S.gL.eachLayer(l=>S.gL.resetStyle(l));
+function closeDet() {
+  S.sel = null;
+  if (S.farmL) S.farmL.eachLayer(l => S.farmL.resetStyle(l));
   document.getElementById('det').classList.remove('open');
   renderRank(currentValues());
 }
 
-function swL(l){
-  S.layer=l;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.l===l));
-  const titles={anzahl:'Nutztiere nach Gemeinde',gve:'GVE nach Gemeinde',futter:'Futterbedarf nach Gemeinde'};
-  document.getElementById('pT').textContent=titles[l];
+// ══ TAB SWITCH ══
+function swL(l) {
+  S.tab = l;
+  const isMarkt = l === 'markt';
+  const isStats = l === 'stats';
+  if (!isMarkt && !isStats) S.layer = l;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.l===l));
+  // Sidebar panels
+  document.getElementById('phead').style.display    = (!isMarkt && !isStats) ? '' : 'none';
+  document.getElementById('rankWrap').style.display = (!isMarkt && !isStats) ? '' : 'none';
+  document.getElementById('chartWrap').style.display = isMarkt ? 'flex' : 'none';
+  // Map overlay
+  document.getElementById('statsWrap').style.display = isStats ? 'block' : 'none';
+  if (!isMarkt && !isStats) { renderMap(); renderWatchlist(); if (S.sel) openFarm(S.sel); }
+  if (isMarkt) renderMarktChart();
+  if (isStats) renderStats();
+}
+
+function setA(a) {
+  S.animal = a;
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.a===a));
   renderMap();
   renderWatchlist();
-  if (S.sel) openG(S.sel);
+  if (S.sel) openFarm(S.sel);
 }
 
-function setA(a){
-  S.animal=a;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.a===a));
-  renderMap();
-  renderWatchlist();
-  if (S.sel) openG(S.sel);
+// ══ MARKT CHART ══
+let CHART = null;
+function renderMarktChart() {
+  const farms = Object.values(S.farms)
+    .filter(f => f.feed > 0)
+    .sort((a,b) => b.feed - a.feed)
+    .slice(0, 35);
+
+  const labels   = farms.map(f => f.name);
+  const potData  = farms.map(f => f.feed);
+  const soldData = farms.map(f => f.feedSold);
+  const soldCount = farms.filter(f => f.hasSales).length;
+
+  const h = Math.max(420, farms.length * 19);
+  document.getElementById('chartCanvasWrap').style.minHeight = h + 'px';
+
+  const ctx = document.getElementById('marktChart').getContext('2d');
+  if (CHART) CHART.destroy();
+  CHART = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Futter-Potenzial (kg/J)',
+          data: potData,
+          backgroundColor: 'rgba(128,61,34,0.45)',
+          borderColor: '#803d22',
+          borderWidth: 1,
+          borderRadius: 2,
+        },
+        {
+          label: 'Bereits verkauft (kg/J)',
+          data: soldData,
+          backgroundColor: 'rgba(200,144,10,0.80)',
+          borderColor: '#a07008',
+          borderWidth: 1,
+          borderRadius: 2,
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {font:{size:9.5}, boxWidth:11, padding:10}
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label + ': ' + fN(ctx.raw) + ' kg',
+            afterLabel: ctx => {
+              if (ctx.datasetIndex === 1) {
+                const pot = potData[ctx.dataIndex];
+                if (pot > 0 && ctx.raw > 0) return Math.round(ctx.raw/pot*100) + '% des Potenzials';
+              }
+              return '';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {font:{size:8.5}, callback: v => fS(v), maxTicksLimit:5},
+          grid: {color:'rgba(0,0,0,0.05)'}
+        },
+        y: {
+          ticks: {font:{size:9}, padding:3}
+        }
+      }
+    }
+  });
+
+  document.getElementById('chartNote').textContent =
+    soldCount + ' von ' + farms.length + ' Höfen haben bereits Futter verkauft (' +
+    Math.round(soldCount/farms.length*100) + '%). Top 35 nach Potenzial.';
 }
 
-function toCSV(rows){
-  return rows.map(r=>r.map(c=>{if(c==null)return'';const s=String(c);return /[",;\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(';')).join('\n');
+// ══ STATISTIKEN ══
+function renderStats() {
+  const farms = Object.values(S.farms);
+  const gDiv  = document.getElementById('statsGeneral');
+  if (!farms.length) { gDiv.innerHTML='<div class="empty"><div class="empty-i">⌛</div>Keine Daten</div>'; return; }
+
+  // Aggregate
+  let totA=0, totF=0, totS=0, soldN=0;
+  const byCat={}, byGem={};
+  farms.forEach(f => {
+    totA+=f.total; totF+=f.feed; totS+=f.feedSold;
+    if (f.hasSales) soldN++;
+    Object.entries(f.byCat).forEach(([c,v])=>{ byCat[c]=(byCat[c]||0)+v; });
+    if (!byGem[f.gemeinde]) byGem[f.gemeinde]={total:0,farms:0,feed:0,sold:0};
+    const g=byGem[f.gemeinde]; g.total+=f.total; g.farms++; g.feed+=f.feed; g.sold+=f.feedSold;
+  });
+  const catOrder=['Rinder','Schweine','Geflügel','Schafe','Ziegen','Pferde','Andere'];
+  const maxCat=Math.max(...catOrder.map(c=>byCat[c]||0),1);
+  const topGem=Object.entries(byGem).sort((a,b)=>b[1].total-a[1].total).slice(0,10);
+  const avgA=Math.round(totA/farms.length), avgF=Math.round(totF/farms.length);
+  const soldPct=Math.round(soldN/farms.length*100);
+
+  function sc(n,l,sub){
+    return '<div class="stat-card"><div class="stat-card-n">'+n+'</div><div class="stat-card-l">'+l+'</div>'+(sub?'<div class="stat-card-sub" style="color:var(--ink-muted)">'+sub+'</div>':'')+'</div>';
+  }
+
+  let g='';
+  g+='<div class="stats-col-hd">Gesamtübersicht <span>Kanton Thurgau · '+S.year+'</span></div>';
+
+  g+='<div class="stat-section-hd">Kennzahlen</div>';
+  g+='<div class="stat-grid">';
+  g+=sc(fN(farms.length),'Simulierte Höfe', Object.keys(byGem).length+' Gemeinden');
+  g+=sc(fS(totA),'Nutztiere total','Ø '+fN(avgA)+' pro Hof');
+  g+=sc(fS(totF)+' kg','Futterpotenzial /J','Ø '+fS(avgF)+' kg/Hof');
+  g+=sc(soldPct+'%','Höfe mit Verkauf',fN(soldN)+' von '+fN(farms.length));
+  g+='</div>';
+
+  g+='<div class="stat-section-hd" style="margin-top:18px">Tierarten-Verteilung</div>';
+  catOrder.forEach(cat=>{
+    const v=byCat[cat]||0; if(!v) return;
+    const share=Math.round(v/totA*100);
+    g+='<div class="stat-bar-row">'
+      +'<div class="stat-bar-label">'+cat+'</div>'
+      +'<div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+Math.round(v/maxCat*100)+'%;background:'+CAT_COLORS[cat]+'"></div></div>'
+      +'<div class="stat-bar-val">'+fS(v)+' <span style="font-size:8.5px;color:var(--ink-faint)">('+share+'%)</span></div>'
+      +'</div>';
+  });
+
+  g+='<div class="stat-section-hd" style="margin-top:18px">Top 10 Gemeinden</div>';
+  g+='<table class="stat-tbl"><thead><tr><th>#</th><th>Gemeinde</th><th class="num">Tiere</th><th class="num">Höfe</th><th class="num">Ø/Hof</th><th class="num">Futter-Pot.</th></tr></thead><tbody>';
+  topGem.forEach(([nm,d],i)=>{
+    g+='<tr><td style="color:var(--ink-faint)">'+(i+1)+'</td><td style="font-weight:500;color:var(--ink)">'+nm+'</td>'
+      +'<td class="num">'+fN(d.total)+'</td>'
+      +'<td class="num">'+d.farms+'</td>'
+      +'<td class="num">'+fN(Math.round(d.total/d.farms))+'</td>'
+      +'<td class="num">'+fS(d.feed)+' kg</td>'
+      +'</tr>';
+  });
+  g+='</tbody></table>';
+
+  g+='<div class="stat-section-hd" style="margin-top:18px">Marktdurchdringung</div>';
+  g+='<div style="font-size:11px;color:var(--ink-mid);margin-bottom:4px"><b>'+fN(soldN)+'</b> von <b>'+fN(farms.length)+'</b> Höfen ('+soldPct+'%) haben bereits Futter verkauft</div>';
+  g+='<div class="stat-mkt-bar"><div class="stat-mkt-fill" style="width:'+soldPct+'%"></div></div>';
+  g+='<div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--ink-muted);margin-top:2px"><span>Ø Verkauft/Hof: '+fS(soldN?Math.round(totS/soldN):0)+' kg/J</span><span>Total: '+fS(totS)+' kg/J</span></div>';
+
+  gDiv.innerHTML = g;
+
+  // Store totals for watchlist column
+  S._statsTotals = {totA, totF, totS, soldN, avgA, avgF, farms:farms.length};
+  renderWLStats();
 }
-function downloadCSV(name,csv){
-  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download=name;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),500);
-}
-// ══ MERKLISTE (Watchlist) ══
-// Doppelklick auf Ranking oder Karte fügt Gemeinde hinzu.
-// Wird als CSV mit allen relevanten Spalten exportiert.
-function addToWatchlist(nm){
-  // nm can be data-name or geo-name; resolve to canonical data-name
-  const dataKey = (S.geoToData && S.geoToData[nm]) || nm;
-  if (!S.byGem[dataKey]) {
-    console.warn('[Watchlist] Unknown gemeinde:', nm);
+
+function renderWLStats() {
+  const wlDiv  = document.getElementById('statsWL');
+  if (!wlDiv) return;
+  const wlFarms = S.watchlist.map(fid=>S.farms[fid]).filter(Boolean);
+  const tot     = S._statsTotals || {};
+
+  if (!wlFarms.length) {
+    wlDiv.innerHTML = '<div class="stats-col-hd">Merkliste <span>Vergleich</span></div>'
+      +'<div class="empty" style="padding-top:60px"><div class="empty-i">★</div>'
+      +'<div style="font-size:13px;color:var(--ink-mid);margin-top:4px">Noch keine Höfe ausgewählt</div>'
+      +'<div style="font-size:11px;margin-top:8px;color:var(--ink-muted);max-width:220px;margin-left:auto;margin-right:auto;line-height:1.5">'
+      +'Doppelklick auf einen Hof in der Rangliste oder auf der Karte, um ihn der Merkliste hinzuzufügen.</div></div>';
     return;
   }
-  if (S.watchlist.includes(dataKey)) {
-    // Visual feedback: already on list
-    flashWatchlistItem(dataKey);
-    return;
+
+  let wA=0, wF=0, wS=0, wSoldN=0;
+  const wByCat={};
+  wlFarms.forEach(f=>{
+    wA+=f.total; wF+=f.feed; wS+=f.feedSold;
+    if(f.hasSales) wSoldN++;
+    Object.entries(f.byCat).forEach(([c,v])=>{ wByCat[c]=(wByCat[c]||0)+v; });
+  });
+  const n=wlFarms.length;
+  const wAvgA=Math.round(wA/n), wAvgF=Math.round(wF/n);
+  const wSoldPct=Math.round(wSoldN/n*100);
+  const catOrder=['Rinder','Schweine','Geflügel','Schafe','Ziegen','Pferde','Andere'];
+  const maxWCat=Math.max(...catOrder.map(c=>wByCat[c]||0),1);
+
+  function pct(w,g){
+    if(!g) return '';
+    const diff=Math.round((w-g)/g*100);
+    const col=diff>=0?'color:var(--leaf-d)':'color:var(--brick)';
+    return '<div class="stat-card-sub" style="'+col+'">'+(diff>0?'+':'')+diff+'% vs. Ø Gesamt</div>';
   }
-  S.watchlist.push(dataKey);
-  renderWatchlist();
-  renderRank(currentValues()); // refresh ranking to show ★ marker
+  function sc2(n,l,sub){ return '<div class="stat-card"><div class="stat-card-n">'+n+'</div><div class="stat-card-l">'+l+'</div>'+(sub||'')+'</div>'; }
+
+  let h='';
+  h+='<div class="stats-col-hd">Merkliste <span>'+n+' '+(n===1?'Hof':'Höfe')+' ausgewählt</span></div>';
+
+  h+='<div class="stat-section-hd">Merkliste Kennzahlen</div>';
+  h+='<div class="stat-grid">';
+  h+=sc2(fN(wA),'Nutztiere total', pct(wAvgA, tot.avgA));
+  h+=sc2(fS(wF)+' kg','Futterpotenzial /J', pct(wAvgF, tot.avgF));
+  h+=sc2(fS(wS)+' kg','Bereits verkauft','<div class="stat-card-sub" style="color:var(--ink-muted)">'+fN(wSoldN)+' von '+n+' Höfen ('+wSoldPct+'%)</div>');
+  h+=sc2(wF>0?Math.round(wS/wF*100)+'%':'—','Marktausschöpfung','<div class="stat-card-sub" style="color:var(--ink-muted)">Gesamt: '+(tot.totF?Math.round(tot.totS/tot.totF*100):'—')+'%</div>');
+  h+='</div>';
+
+  h+='<div class="stat-section-hd" style="margin-top:18px">Tierarten (Merkliste)</div>';
+  catOrder.forEach(cat=>{
+    const v=wByCat[cat]||0; if(!v) return;
+    const share=wA>0?Math.round(v/wA*100):0;
+    h+='<div class="stat-bar-row">'
+      +'<div class="stat-bar-label">'+cat+'</div>'
+      +'<div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+Math.round(v/maxWCat*100)+'%;background:'+CAT_COLORS[cat]+'"></div></div>'
+      +'<div class="stat-bar-val">'+fS(v)+' <span style="font-size:8.5px;color:var(--ink-faint)">('+share+'%)</span></div>'
+      +'</div>';
+  });
+
+  h+='<div class="stat-section-hd" style="margin-top:18px">Hofdetails</div>';
+  h+='<table class="stat-tbl"><thead><tr><th>Hof</th><th>Gemeinde</th><th class="num">Tiere</th><th class="num">Futter kg/J</th><th class="num">Verkauft</th></tr></thead><tbody>';
+  wlFarms.slice().sort((a,b)=>b.total-a.total).forEach(f=>{
+    const hasSold=f.hasSales;
+    h+='<tr>'
+      +'<td style="font-weight:500;color:var(--ink)"><span style="cursor:pointer;color:var(--leaf-d)" onclick="swL(\'anzahl\');setTimeout(()=>openFarm(\''+f.id.replace(/'/g,"\\'")+'\'  ),100)">'+f.name+'</span></td>'
+      +'<td>'+f.gemeinde+'</td>'
+      +'<td class="num">'+fN(f.total)+'</td>'
+      +'<td class="num">'+fS(f.feed)+' kg</td>'
+      +'<td class="num '+(hasSold?'highlight':'')+'">'+( hasSold?fS(f.feedSold)+' kg':'—')+'</td>'
+      +'</tr>';
+  });
+  h+='</tbody></table>';
+
+  wlDiv.innerHTML = h;
 }
 
-function removeFromWatchlist(nm){
-  S.watchlist = S.watchlist.filter(x => x !== nm);
+// ══ WATCHLIST ══
+function addToWatchlist(fid) {
+  if (!S.farms[fid]) { console.warn('[WL] Unknown farm:', fid); return; }
+  if (S.watchlist.includes(fid)) { flashWL(fid); return; }
+  S.watchlist.push(fid);
   renderWatchlist();
   renderRank(currentValues());
 }
-
-function clearWatchlist(){
+function removeFromWatchlist(fid) {
+  S.watchlist = S.watchlist.filter(x => x !== fid);
+  renderWatchlist();
+  renderRank(currentValues());
+}
+function clearWatchlist() {
   if (!S.watchlist.length) return;
-  if (confirm('Merkliste leeren? '+S.watchlist.length+' Einträge werden entfernt.')){
+  if (confirm('Merkliste leeren? '+S.watchlist.length+' Einträge werden entfernt.')) {
     S.watchlist = [];
     renderWatchlist();
     renderRank(currentValues());
   }
 }
-
-function flashWatchlistItem(nm){
-  const el = document.querySelector('[data-wl-item="'+cssEsc(nm)+'"]');
-  if (el){
-    el.style.transition = 'none';
-    el.style.background = 'var(--wheat-p)';
-    setTimeout(()=>{ el.style.transition=''; el.style.background=''; }, 400);
-  }
+function flashWL(fid) {
+  const el = document.querySelector('[data-wl="'+CSS.escape(fid)+'"]');
+  if (el) { el.style.background='var(--wheat-p)'; setTimeout(()=>{el.style.background='';},400); }
 }
-
 function cssEsc(s){ return (s||'').replace(/"/g,'&quot;').replace(/'/g,"\\'"); }
 
-function renderWatchlist(){
+function renderWatchlist() {
   const body = document.getElementById('wlBody');
-  const count = document.getElementById('wlCount');
-  const btn = document.getElementById('wlExport');
+  const cnt  = document.getElementById('wlCount');
+  const btn  = document.getElementById('wlExport');
   const hint = document.getElementById('wlHint');
-
-  count.textContent = S.watchlist.length;
-  count.className = 'wl-count' + (S.watchlist.length === 0 ? ' zero' : '');
-  btn.disabled = S.watchlist.length === 0;
-
-  if (!S.watchlist.length){
-    body.innerHTML = '<div class="wl-empty">Noch keine Gemeinden auf der Merkliste.<br><b>Tipp:</b> Doppelklick auf eine Gemeinde in der Rangliste oder auf der Karte.</div>';
-    hint.textContent = 'Doppelklick auf Gemeinde zum Hinzufügen';
+  cnt.textContent = S.watchlist.length;
+  cnt.className = 'wl-count'+(S.watchlist.length===0?' zero':'');
+  btn.disabled = S.watchlist.length===0;
+  if (!S.watchlist.length) {
+    body.innerHTML = '<div class="wl-empty">Noch keine Höfe auf der Merkliste.<br><b>Tipp:</b> Doppelklick auf einen Hof.</div>';
+    hint.textContent = 'Doppelklick auf Hof zum Hinzufügen';
     return;
   }
-
   hint.innerHTML = '<a href="#" onclick="clearWatchlist();return false;" style="color:var(--brick);text-decoration:none;">Alle entfernen</a>';
-
-  const vals = currentValues();
-  const units = {anzahl:'Tiere',gve:'GVE',futter:'kg'};
-  const html = S.watchlist.map(nm=>{
-    const geoKey = (S.dataToGeo && S.dataToGeo[nm]) || nm;
-    const v = vals[geoKey] || 0;
-    const esc = nm.replace(/'/g,"\\'");
-    return '<div class="wl-item" data-wl-item="'+cssEsc(nm)+'">'
-      + '<span class="wl-item-name" onclick="openG(\''+esc+'\')" title="Details anzeigen">'+nm+'</span>'
-      + '<span class="wl-item-val">'+fS(v)+' '+units[S.layer]+'</span>'
-      + '<span class="wl-item-x" onclick="removeFromWatchlist(\''+esc+'\')" title="Entfernen">×</span>'
+  const vals  = currentValues();
+  const units = {anzahl:'Tiere',gve:'GVE',futter:'kg',markt:'kg'};
+  body.innerHTML = S.watchlist.map(fid => {
+    const fm = S.farms[fid];
+    const v  = vals[fid]||0;
+    const esc = fid.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="wl-item" data-wl="'+cssEsc(fid)+'">'
+      + '<span class="wl-item-name" onclick="openFarm(\''+esc+'\')" title="Details">'+(fm?.name||fid)+'</span>'
+      + '<span class="wl-item-val">'+fS(v)+' '+(units[S.layer]||'')+'</span>'
+      + '<span class="wl-item-x" onclick="removeFromWatchlist(\''+esc+'\')" title="Entfernen">&times;</span>'
       + '</div>';
   }).join('');
-  body.innerHTML = html;
 }
 
-function exportWatchlist(){
+// ══ CSV EXPORT ══
+function toCSV(rows) {
+  return rows.map(r => r.map(c => {
+    if (c==null) return '';
+    const s = String(c);
+    return /[",;\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(';')).join('\n');
+}
+function downloadCSV(name, csv) {
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+function exportWatchlist() {
   if (!S.watchlist.length) return;
-  const hdr = ['Gemeinde','Tiere total','Rinder','Schweine','Geflügel','Schafe','Ziegen','Pferde','GVE','Futter kg/J','Einstreu kg/J','Potenzial CHF/J'];
+  const hdr = ['Hof','Gemeinde','Tiere total','Rinder','Schweine','Geflügel','Schafe','Ziegen','Pferde','GVE','Futter kg/J','Einstreu kg/J','Verkauft kg/J'];
   const rows = [hdr];
-  S.watchlist.forEach(nm=>{
-    const b = S.byGem[nm];
-    if (!b) return;
-    const pot = Math.round(b.feed*0.50 + b.bed*0.30);
-    rows.push([nm, b.total, b.byCat.Rinder||0, b.byCat.Schweine||0, b.byCat['Geflügel']||0,
-               b.byCat.Schafe||0, b.byCat.Ziegen||0, b.byCat.Pferde||0,
-               b.gve, b.feed, b.bed, pot]);
+  S.watchlist.forEach(fid => {
+    const fm = S.farms[fid]; if (!fm) return;
+    rows.push([fm.name,fm.gemeinde,fm.total,fm.byCat.Rinder||0,fm.byCat.Schweine||0,
+               fm.byCat['Geflügel']||0,fm.byCat.Schafe||0,fm.byCat.Ziegen||0,fm.byCat.Pferde||0,
+               fm.gve,fm.feed,fm.bed,fm.feedSold]);
   });
-  const filename = 'thurnatur_merkliste_'+S.watchlist.length+'gem_'+(S.year||'')+'.csv';
-  downloadCSV(filename, toCSV(rows));
+  downloadCSV('thurnatur_merkliste_'+(S.year||'')+'.csv', toCSV(rows));
+}
+function exportAllCSV() {
+  const rows = [['Hof','Gemeinde','Tiere total','Rinder','Schweine','Geflügel','Schafe','Ziegen','Pferde','GVE','Futter kg/J','Einstreu kg/J','Verkauft kg/J']];
+  Object.values(S.farms).sort((a,b)=>b.feed-a.feed).forEach(fm => {
+    rows.push([fm.name,fm.gemeinde,fm.total,fm.byCat.Rinder||0,fm.byCat.Schweine||0,
+               fm.byCat['Geflügel']||0,fm.byCat.Schafe||0,fm.byCat.Ziegen||0,fm.byCat.Pferde||0,
+               fm.gve,fm.feed,fm.bed,fm.feedSold]);
+  });
+  downloadCSV('thurnatur_hoefe_'+(S.year||'')+'.csv', toCSV(rows));
 }
 
-function exportAllCSV(){
-  const rows=[['Gemeinde','Tiere total','Rinder','Schweine','Geflügel','Schafe','Ziegen','Pferde','GVE','Futter kg/J','Einstreu kg/J','Potenzial CHF/J']];
-  Object.entries(S.byGem).sort((a,b)=>b[1].total-a[1].total).forEach(([g,b])=>{
-    const pot=Math.round(b.feed*0.50+b.bed*0.30);
-    rows.push([g,b.total,b.byCat.Rinder,b.byCat.Schweine,b.byCat['Geflügel'],b.byCat.Schafe,b.byCat.Ziegen,b.byCat.Pferde,b.gve,b.feed,b.bed,pot]);
-  });
-  downloadCSV('thurnatur_gesamt_'+(S.year||'')+'.csv',toCSV(rows));
+// ══ DATA LOADING ══
+async function fetchGeo() {
+  console.log('[Geo] Using embedded Thurgau boundaries:', GEO.features.length, 'municipalities');
+  return GEO;
 }
 
-async function findLatestYear(){
-  for (let y=2025; y>=2020; y--){
-    try{
-      const r=await fetch(ODS+'/div-la-2/records?limit=1&select=jahr&where=year(jahr)%3D'+y);
+async function findLatestYear() {
+  for (let y = 2025; y >= 2020; y--) {
+    try {
+      const r = await fetch(ODS+'/div-la-2/records?limit=1&select=jahr&where=year(jahr)%3D'+y);
       if (!r.ok) continue;
-      const d=await r.json();
-      if ((d.results||[]).length>0) return y;
-    }catch(e){}
+      const d = await r.json();
+      if ((d.results||[]).length > 0) return y;
+    } catch(e) {}
   }
   return 2023;
 }
 
-async function loadData(){
+async function loadData() {
   setSpin(true);
 
-  // Start geo loading in parallel — doesn't block data loading
-  const geoPromise = fetchGeo().then(g=>{
+  const geoPromise = fetchGeo().then(g => {
     GEO_LIVE = g;
-    try{
-      const testLayer = L.geoJSON(GEO_LIVE || GEO_FALLBACK);
-      const bounds = testLayer.getBounds();
-      console.log('[Geo] Bounds:', bounds.toBBoxString());
-      const expected = bounds.intersects(L.latLngBounds([[47.3, 8.6],[47.75, 9.55]]));
-      console.log('[Geo] Bounds match Thurgau area?', expected);
-      map.fitBounds(bounds, {padding:[20,20]});
-    }catch(e){ console.warn('[Geo] Bounds failed:', e); }
-    // If map was already rendered with fallback, re-render with real geo
-    if (S.gL && GEO_LIVE !== GEO_FALLBACK){
-      S.gL.remove();
-      S.gL = null;
-      S.geoIndex = {};
-      if (Object.keys(S.byGem).length){
-        renderMap();
-        buildNameIndex();
-        renderMap();
-      }
-    }
+    try {
+      const b = L.geoJSON(GEO_LIVE||GEO_FALLBACK).getBounds();
+      map.fitBounds(b, {padding:[20,20]});
+    } catch(e) {}
   });
 
-  try{
-    S.year = await findLatestYear();
-  }catch(e){ S.year = 2023; }
-  document.getElementById('navYr').textContent=S.year;
-  document.getElementById('pYr').textContent=S.year;
+  try { S.year = await findLatestYear(); } catch(e) { S.year=2023; }
+  document.getElementById('navYr').textContent = S.year;
+  document.getElementById('pYr').textContent   = S.year;
 
-  try{
+  try {
     let all=[], offset=0;
-    while (true){
-      const url=ODS+'/div-la-2/records?limit=100&offset='+offset+'&select=standortgemeinde,hauptkategorie,durchschnittsbestand_stueck&where=year(jahr)%3D'+S.year;
-      const r=await fetch(url);
+    while (true) {
+      const url = ODS+'/div-la-2/records?limit=100&offset='+offset+'&select=standortgemeinde,hauptkategorie,durchschnittsbestand_stueck&where=year(jahr)%3D'+S.year;
+      const r = await fetch(url);
       if (!r.ok) break;
-      const d=await r.json();
-      const recs=d.results||[];
-      all=all.concat(recs);
+      const d = await r.json();
+      const recs = d.results||[];
+      all = all.concat(recs);
       if (recs.length<100) break;
-      offset+=100;
+      offset += 100;
       if (offset>5000) break;
     }
-    S.raw=all; S.live=all.length>0;
     if (!all.length) throw new Error('empty');
+    S.raw=all; S.live=true;
+    S.byGem = aggregate(all);
     document.getElementById('statBadge').className='nav-badge live';
     document.getElementById('statBadge').innerHTML='Live &middot; Jahr <b>'+S.year+'</b>';
-    S.byGem=aggregate(all);
-  }catch(e){
-    console.warn('API fallback:',e);
-    S.raw=[]; S.byGem={};
+  } catch(e) {
+    console.warn('API fallback:', e);
+    S.raw=[]; S.live=false;
     const synth=[
       {tk:'Milchkühe',frac:0.35},{tk:'Mutterkühe',frac:0.08},
       {tk:'Rinder',frac:0.12},{tk:'Kälber',frac:0.10},
@@ -694,33 +1364,47 @@ async function loadData(){
       {tk:'Mastpoulets',frac:0.02},{tk:'Schafe',frac:0.005},
       {tk:'Ziegen',frac:0.003},{tk:'Pferde',frac:0.002},
     ];
-    for (const g in SAMPLE){
-      const t=SAMPLE[g];
-      synth.forEach(c=>S.raw.push({standortgemeinde:g,hauptkategorie:c.tk,durchschnittsbestand_stueck:Math.round(t*c.frac)}));
+    for (const g in SAMPLE) {
+      const t = SAMPLE[g];
+      synth.forEach(c => S.raw.push({standortgemeinde:g, hauptkategorie:c.tk, durchschnittsbestand_stueck:Math.round(t*c.frac)}));
     }
-    S.byGem=aggregate(S.raw);
+    S.byGem = aggregate(S.raw);
     document.getElementById('statBadge').className='nav-badge offline';
     document.getElementById('statBadge').innerHTML='Demo &middot; Jahr <b>'+S.year+'</b>';
   }
 
-  // Wait for geo load before first render to avoid visible re-render
-  await geoPromise;
-  setSpin(false);
-  renderMap();          // creates S.geoIndex via onEachFeature
-  buildNameIndex();     // now match data names to geo names
-  renderMap();          // re-render with proper data→geo mapping
-  renderWatchlist();    // initial watchlist render (empty state)
+  try {
+    await geoPromise;
+  } catch(e) { console.warn('[loadData] geoPromise failed:', e); }
+
+  try {
+    buildNameIndex();
+    const result = generateFarms(GEO_LIVE || GEO_FALLBACK, S.byGem, S.geoToData);
+    S.farmGeo = result.geo;
+    S.farms   = result.farms;
+    console.log('[Farms] Generated:', Object.keys(S.farms).length, 'farms');
+  } catch(e) {
+    console.error('[loadData] generateFarms failed:', e);
+    S.farmGeo = {type:'FeatureCollection', features:[]};
+    S.farms   = {};
+  } finally {
+    setSpin(false);
+    renderMap();
+    renderWatchlist();
+  }
 }
 
-function setSpin(on){document.getElementById('spin').classList.toggle('on',on);}
-function fN(n){return n?Math.round(n).toLocaleString('de-CH'):'—';}
+function setSpin(on){ document.getElementById('spin').classList.toggle('on',on); }
+function fN(n){ return n ? Math.round(n).toLocaleString('de-CH') : '—'; }
 function fS(n){
-  if(!n||n===0)return'—';
-  if(n>=1000000)return(n/1000000).toFixed(1)+' Mio.';
-  if(n>=10000)return Math.round(n/1000)+"k";
-  if(n>=1000)return(n/1000).toFixed(1)+"k";
+  if (!n||n===0) return '—';
+  if (n>=1000000) return (n/1000000).toFixed(1)+' Mio.';
+  if (n>=10000)   return Math.round(n/1000)+'k';
+  if (n>=1000)    return (n/1000).toFixed(1)+'k';
   return String(Math.round(n));
 }
 
 loadData();
-</script></body></html>
+</script>
+</body>
+</html>
